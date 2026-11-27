@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PinSync — Freeform Reference &amp; Sync Canvas</title>
+    <style>
+      :root {
+        --bg: #0f1117;
+        --surface: rgba(24, 27, 36, 0.78);
+        --border: rgba(255, 255, 255, 0.1);
+        --text: #e6ebf5;
+        --muted: #94a3b8;
+        --accent: #4f9cf9;
+        --emerald: #34d399;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          'Segoe UI',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background:
+          radial-gradient(circle at 20% 10%, rgba(79, 156, 249, 0.14), transparent 45%),
+          radial-gradient(circle at 80% 25%, rgba(52, 211, 153, 0.1), transparent 40%), var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 48px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .brand-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 12px rgba(79, 156, 249, 0.8);
+      }
+      .nav-links {
+        display: flex;
+        gap: 18px;
+        font-size: 14px;
+      }
+      .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      .nav-links a:hover {
+        color: #ffffff;
+      }
+      .hero {
+        text-align: center;
+        padding: 24px 0 56px;
+      }
+      .pill {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #93c5fd;
+        background: rgba(79, 156, 249, 0.14);
+        border: 1px solid rgba(79, 156, 249, 0.35);
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: clamp(2.2rem, 5vw, 3.4rem);
+        line-height: 1.15;
+        margin: 0 0 16px;
+        letter-spacing: -0.02em;
+      }
+      .subtitle {
+        max-width: 680px;
+        margin: 0 auto 28px;
+        color: var(--muted);
+        font-size: 17px;
+      }
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        border: 1px solid var(--border);
+        transition:
+          transform 140ms,
+          background 140ms;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: transparent;
+      }
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--text);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+      }
+      .card {
+        padding: 20px;
+        border-radius: 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(16px);
+      }
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        color: #ffffff;
+      }
+      .card p {
+        margin: 0;
+        font-size: 13.5px;
+        color: var(--muted);
+      }
+      section {
+        margin-top: 56px;
+      }
+      h2 {
+        font-size: 22px;
+        margin-bottom: 12px;
+      }
+      pre {
+        padding: 16px;
+        border-radius: 12px;
+        background: #090b10;
+        border: 1px solid var(--border);
+        overflow-x: auto;
+        font-size: 13px;
+        color: #cbd5e1;
+      }
+      footer {
+        margin-top: 72px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="brand"><span class="brand-dot"></span> PinSync</div>
+        <nav class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#sync">Central Server</a>
+          <a href="#setup">Quick Start</a>
+        </nav>
+      </header>
+
+      <div class="hero">
+        <span class="pill">Windows &amp; Linux · PureRef-Style Infinite Canvas</span>
+        <h1>Pin anything. Sync live. Drag it anywhere.</h1>
+        <p class="subtitle">
+          PinSync combines an infinite visual reference board for images, videos, webpages, audio,
+          30+ 3D/CAD model formats, free-draw sketches, flowcharts, and code with real-time central
+          server collaboration and native OS drag-out.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/YOUR_USERNAME/PinSync/releases">
+            Download Releases
+          </a>
+          <a class="btn btn-secondary" href="https://github.com/YOUR_USERNAME/PinSync">
+            View on GitHub
+          </a>
+        </div>
+      </div>
+
+      <section id="features">
+        <h2>Built for Creative &amp; Technical Workflows</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>30+ 3D &amp; CAD Formats</h3>
+            <p>
+              Inspect GLB, GLTF, OBJ, FBX, STL, USDZ, PLY, STEP, IGES, BREP, Gaussian Splats, and
+              ZIP bundles directly on the board with OrbitControls and wireframe mode.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Central Server &amp; Live Sync</h3>
+            <p>
+              Host the built-in central server or run it on your own VPS. Boards and deduplicated
+              media assets sync in real time over SSE so teammates can refine together.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Native OS Drag-Out</h3>
+            <p>
+              Click, hold, and drag any reference item past the PinSync window border to drop it
+              directly into Explorer, Desktop, Photoshop, or Blender.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Free-Draw, Flowcharts &amp; Text</h3>
+            <p>
+              Sketch with the smooth vector pen (<code>Alt+D</code>), type anywhere on the canvas,
+              or type <code>aaa</code> + <code>Space</code> to draw smart-snapping arrows.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Portable Embedded Boards</h3>
+            <p>
+              Save boards as self-contained <code>.artbrd.json</code> files with all local media
+              assets embedded inside — ready to share across computers.
+            </p>
+          </div>
+          <div class="card">
+            <h3>macOS-Style Floating Dock</h3>
+            <p>
+              Minimal glassmorphic bottom dock, 5 ambient canvas themes, window opacity control,
+              always-on-top mode, and one-key Zen mode (<code>Tab</code>).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="sync">
+        <h2>Run Your Own Central Server</h2>
+        <pre><code>git clone https://github.com/YOUR_USERNAME/PinSync.git
+cd PinSync
+npm install
+npm run server   # Starts PinSync Central Server on http://0.0.0.0:4580</code></pre>
+      </section>
+
+      <section id="setup">
+        <h2>Desktop Quick Start</h2>
+        <pre><code>npm install
+npm start        # Builds and launches PinSync
+npm run build:win    # Windows .exe installer &amp; portable
+npm run build:linux  # Linux AppImage, .deb (Debian/Deepin), .pacman (Arch)</code></pre>
+      </section>
+
+      <footer>PinSync · Open Source under the MIT License</footer>
+    </div>
+  </body>
+</html>
