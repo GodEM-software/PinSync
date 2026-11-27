@@ -1,1235 +1,1788 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PinSync — Freeform Reference Canvas | First 50 Users Free</title>
-  <meta
-    name="description"
-    content="PinSync is a freeform infinite reference canvas for images, videos, webpages, audio, 30+ 3D/CAD models, free-draw sketches, flowcharts, and code — with live central server sync and native OS drag-out. Free for the first 50 users!"
-  />
-  <link rel="icon" type="image/png" href="assets/icon.png" />
-  <style>
-    :root {
-      --bg: #0c0d12;
-      --bg-elevated: #141720;
-      --bg-card: #1a1c24;
-      --bg-card-hover: #212430;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-strong: rgba(255, 255, 255, 0.16);
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      --accent: #38bdf8;
-      --accent-2: #818cf8;
-      --accent-glow: rgba(56, 189, 248, 0.22);
-      --success: #34d399;
-      --warning: #fbbf24;
-      --danger: #f87171;
-      --radius: 14px;
-      --radius-sm: 10px;
-      --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: var(--font-sans);
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      overflow-x: hidden;
-      background-image:
-        radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.09), transparent 38%),
-        radial-gradient(circle at 85% 20%, rgba(129, 140, 248, 0.09), transparent 40%),
-        radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 26px 26px;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .container {
-      max-width: 1140px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* Top Promo Banner */
-    .promo-bar {
-      background: linear-gradient(90deg, rgba(56, 189, 248, 0.16), rgba(129, 140, 248, 0.18));
-      border-bottom: 1px solid rgba(56, 189, 248, 0.28);
-      padding: 10px 16px;
-      text-align: center;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .promo-pill {
-      background: var(--success);
-      color: #052e16;
-      font-weight: 700;
-      font-size: 0.72rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 3px 9px;
-      border-radius: 999px;
-    }
-
-    .promo-bar strong {
-      color: #fff;
-    }
-
-    /* Navbar */
-    header.nav {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(14px);
-      background: rgba(12, 13, 18, 0.8);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 66px;
-      gap: 16px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
-      font-size: 1.15rem;
-      letter-spacing: -0.02em;
-    }
-
-    .brand img {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      font-size: 0.92rem;
-      color: var(--text-muted);
-    }
-
-    .nav-links a:hover {
-      color: var(--text);
-    }
-
-    .creator-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--border-strong);
-      background: rgba(255, 255, 255, 0.04);
-      font-size: 0.84rem;
-      color: var(--text);
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .creator-chip:hover {
-      border-color: var(--accent);
-      background: rgba(56, 189, 248, 0.1);
-    }
-
-    /* Hero */
-    .hero {
-      padding: 72px 0 56px;
-      text-align: center;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      background: rgba(52, 211, 153, 0.12);
-      border: 1px solid rgba(52, 211, 153, 0.35);
-      color: var(--success);
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 22px;
-    }
-
-    .hero h1 {
-      font-size: clamp(2.3rem, 5vw, 3.85rem);
-      font-weight: 800;
-      letter-spacing: -0.035em;
-      line-height: 1.1;
-      max-width: 860px;
-      margin: 0 auto 18px;
-    }
-
-    .hero h1 span {
-      background: linear-gradient(120deg, #38bdf8 0%, #818cf8 55%, #c084fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .hero p.subtitle {
-      font-size: 1.12rem;
-      color: var(--text-muted);
-      max-width: 720px;
-      margin: 0 auto 32px;
-    }
-
-    /* Live 50-User Download Counter Card */
-    .counter-card {
-      max-width: 620px;
-      margin: 0 auto 32px;
-      padding: 20px 24px;
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(26, 28, 36, 0.95), rgba(20, 23, 32, 0.95));
-      border: 1px solid var(--border-strong);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 40px var(--accent-glow);
-      text-align: left;
-    }
-
-    .counter-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .counter-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .live-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 10px var(--success);
-      animation: pulse 1.8s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.55; transform: scale(1.25); }
-    }
-
-    .counter-numbers {
-      font-family: var(--font-mono);
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .counter-numbers span.limit {
-      color: var(--text-dim);
-      font-size: 1rem;
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 10px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.07);
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--success), var(--accent), var(--accent-2));
-      transition: width 0.5s ease;
-    }
-
-    .counter-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .counter-status.reached {
-      color: var(--warning);
-      font-weight: 700;
-    }
-
-    /* Download CTA Buttons */
-    .cta-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 13px 22px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.96rem;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-    }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #38bdf8, #6366f1);
-      color: #fff;
-      box-shadow: 0 10px 28px rgba(56, 189, 248, 0.28);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 34px rgba(56, 189, 248, 0.38);
-    }
-
-    .btn-secondary {
-      background: var(--bg-card);
-      color: var(--text);
-      border-color: var(--border-strong);
-    }
-
-    .btn-secondary:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .download-note {
-      font-size: 0.84rem;
-      color: var(--text-dim);
-      margin-bottom: 44px;
-    }
-
-    /* Hero Showcase Image */
-    .hero-showcase {
-      position: relative;
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid var(--border-strong);
-      background: var(--bg-card);
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
-    }
-
-    .hero-showcase img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .showcase-caption {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      padding: 12px 18px;
-      background: rgba(12, 13, 18, 0.9);
-      border-top: 1px solid var(--border);
-      font-size: 0.84rem;
-      color: var(--text-muted);
-    }
-
-    /* Sections */
-    section {
-      padding: 68px 0;
-    }
-
-    .section-head {
-      text-align: center;
-      max-width: 680px;
-      margin: 0 auto 44px;
-    }
-
-    .section-kicker {
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 10px;
-    }
-
-    .section-head h2 {
-      font-size: clamp(1.75rem, 3.4vw, 2.5rem);
-      font-weight: 800;
-      letter-spacing: -0.025em;
-      margin-bottom: 12px;
-    }
-
-    .section-head p {
-      color: var(--text-muted);
-    }
-
-    /* Feature Grid */
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 18px;
-    }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px;
-      transition: border-color 0.2s, transform 0.2s;
-    }
-
-    .card:hover {
-      border-color: var(--border-strong);
-      transform: translateY(-2px);
-    }
-
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(56, 189, 248, 0.12);
-      color: var(--accent);
-      font-size: 1.2rem;
-      margin-bottom: 14px;
-    }
-
-    .card h3 {
-      font-size: 1.05rem;
-      margin-bottom: 8px;
-    }
-
-    .card p {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-    }
-
-    /* Theme Preview Strip */
-    .themes-strip {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 28px;
-    }
-
-    .theme-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 9px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .theme-swatch {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-    }
-
-    /* User Guide Tabs & Panels */
-    .guide-wrap {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 28px;
-    }
-
-    .guide-tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 16px;
-    }
-
-    .guide-tab {
-      padding: 8px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .guide-tab.active,
-    .guide-tab:hover {
-      background: rgba(56, 189, 248, 0.14);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    .guide-panel {
-      display: none;
-    }
-
-    .guide-panel.active {
-      display: block;
-    }
-
-    .steps-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-
-    .step-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 18px;
-    }
-
-    .step-num {
-      display: inline-block;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--accent);
-      background: rgba(56, 189, 248, 0.12);
-      padding: 3px 8px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-    }
-
-    .step-box h4 {
-      font-size: 1rem;
-      margin-bottom: 6px;
-    }
-
-    .step-box p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    /* Shortcuts Table */
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table.shortcuts {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.92rem;
-    }
-
-    table.shortcuts th,
-    table.shortcuts td {
-      text-align: left;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    table.shortcuts th {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    kbd {
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border-strong);
-      border-radius: 6px;
-      padding: 2px 7px;
-      color: #fff;
-    }
-
-    /* Creator Card */
-    .creator-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
-      background: linear-gradient(135deg, rgba(26, 28, 36, 0.95), rgba(27, 36, 52, 0.8));
-      border: 1px solid var(--border-strong);
-      border-radius: 18px;
-      padding: 30px;
-    }
-
-    .creator-info {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-
-    .creator-info img {
-      width: 58px;
-      height: 58px;
-      border-radius: 14px;
-      border: 1px solid var(--border-strong);
-    }
-
-    .creator-info h3 {
-      font-size: 1.25rem;
-      margin-bottom: 4px;
-    }
-
-    .creator-info p {
-      color: var(--text-muted);
-      font-size: 0.94rem;
-    }
-
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 0 48px;
-      color: var(--text-dim);
-      font-size: 0.88rem;
-    }
-
-    .footer-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a:hover {
-      color: var(--text);
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 100;
-      background: #141720;
-      border: 1px solid var(--accent);
-      color: #fff;
-      padding: 14px 18px;
-      border-radius: 12px;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
-      max-width: 360px;
-      font-size: 0.9rem;
-      display: none;
-    }
-
-    .toast.show {
-      display: block;
-      animation: slideUp 0.25s ease;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 720px) {
-      .nav-links { display: none; }
-      .hero { padding-top: 48px; }
-      .guide-wrap { padding: 18px; }
-    }
-  </style>
-</head>
-<body>
-  <!-- Top Free-for-50 Banner -->
-  <div class="promo-bar">
-    <span class="promo-pill">Free Launch Offer</span>
-    <span>
-      <strong>First 50 Users Download PinSync Free for Everyone!</strong>
-      <span id="promo-remaining-text">Loading live spot count…</span>
-    </span>
-  </div>
-
-  <!-- Navbar -->
-  <header class="nav">
-    <div class="container nav-inner">
-      <a href="#" class="brand">
-        <img src="assets/icon.png" alt="PinSync Logo" />
-        <span>PinSync</span>
-      </a>
-      <nav class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#guide">User Guide</a>
-        <a href="#shortcuts">Shortcuts</a>
-        <a href="#creator">Creator</a>
-      </nav>
-      <a href="https://sabarees.netlify.app/" target="_blank" rel="noopener noreferrer" class="creator-chip">
-        <span>By Sabarees</span>
-        <span>↗</span>
-      </a>
-    </div>
-  </header>
-
-  <main>
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="container">
-        <div class="hero-badge">
-          ✨ Early Access · Free for First 50 Users
-        </div>
-        <h1>Your Freeform <span>Reference Canvas</span> for Everything.</h1>
-        <p class="subtitle">
-          PinSync is a freeform infinite canvas for images, videos, webpages, audio,
-          30+ 3D &amp; CAD formats, free-draw sketches, flowcharts, and code — with built-in
-          live collaboration and native OS drag-out.
-        </p>
-
-        <!-- Live 50-User Download Counter -->
-        <div class="counter-card" id="download-counter">
-          <div class="counter-top">
-            <div class="counter-title">
-              <span class="live-dot" id="counter-dot"></span>
-              <span>Global Free-Launch Download Counter</span>
-            </div>
-            <div class="counter-numbers">
-              <span id="dl-count">--</span> <span class="limit">/ 50 users</span>
-            </div>
-          </div>
-          <div class="progress-track">
-            <div class="progress-fill" id="dl-progress"></div>
-          </div>
-          <div class="counter-meta">
-            <span id="dl-status" class="counter-status">Checking live counter…</span>
-            <span id="dl-remaining">-- spots left</span>
-          </div>
-        </div>
-
-        <!-- Download Buttons -->
-        <div class="cta-row">
-          <button class="btn btn-primary" onclick="handleDownload('win-setup')">
-            <span>⬇ Download for Windows (.exe Setup)</span>
-          </button>
-          <button class="btn btn-secondary" onclick="handleDownload('win-portable')">
-            <span>📦 Windows Portable (.exe)</span>
-          </button>
-          <button class="btn btn-secondary" onclick="handleDownload('linux')">
-            <span>🐧 Linux (.AppImage / .deb)</span>
-          </button>
-        </div>
-        <p class="download-note">
-          v1.0.0 · MIT Licensed · Clicking download claims 1 of the 50 free launch spots and opens the release package.
-        </p>
-
-        <!-- Hero Visual Showcase -->
-        <div class="hero-showcase">
-          <img
-            src="assets/pinsync-hero.jpg"
-            alt="PinSync freeform dark reference canvas showing 3D models, images, free-draw sketches, code snippets, and color swatches"
-          />
-          <div class="showcase-caption">
-            <span>PinSync Canvas · 11 Content Types · 5 Built-in Themes</span>
-            <span>Built by <a href="https://sabarees.netlify.app/" target="_blank" rel="noopener noreferrer" style="color: var(--accent); font-weight: 600;">sabarees.netlify.app</a></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features">
-      <div class="container">
-        <div class="section-head">
-          <div class="section-kicker">11 Board Content Types</div>
-          <h2>Everything You Reference, One Infinite Board</h2>
-          <p>
-            Drop files, paste from clipboard, or type anywhere on the canvas. Every asset stays crisp,
-            fast, and portable.
-          </p>
-        </div>
-
-        <div class="grid-3">
-          <div class="card">
-            <div class="card-icon">🖼️</div>
-            <h3>Images, Videos &amp; Audio</h3>
-            <p>
-              PNG, JPG, WebP, GIF, SVG, AVIF with non-destructive crop (<code>Alt+Shift+Drag</code>),
-              grayscale &amp; flip. Videos with scrubbing &amp; 0.5x–2x speed, plus Web Audio waveform cards.
-            </p>
-          </div>
-
-          <div class="card">
-            <div class="card-icon">🧊</div>
-            <h3>30+ 3D &amp; CAD Formats</h3>
-            <p>
-              Interactive Three.js viewport for GLB, GLTF, OBJ, FBX, STL, STEP/IGES/BREP
-              (via <code>occt-import-js</code>), USDZ, PLY, VOX, SPLAT, and <code>.zip</code> bundles.
-            </p>
-          </div>
-
-          <div class="card">
-            <div class="card-icon">✏️</div>
-            <h3>Free-Draw, Flowcharts &amp; Arrows</h3>
-            <p>
-              Smooth vector SVG pen (<code>Alt+D</code>), 6 flowchart node shapes with quick-connect
-              ports, and instant arrows by typing <code>aaa</code> + <code>Space</code> or <code>Alt+A</code>.
-            </p>
-          </div>
-
-          <div class="card">
-            <div class="card-icon">🌐</div>
-            <h3>Live Webpages &amp; Code Cards</h3>
-            <p>
-              Embedded <code>&lt;webview&gt;</code> cards with double-click Interact Mode, plus
-              syntax-highlighted code snippet cards with line numbers and word wrap.
-            </p>
-          </div>
-
-          <div class="card">
-            <div class="card-icon">🤝</div>
-            <h3>Live Central Server Sync</h3>
-            <p>
-              Built-in central server (<code>:4580</code>) with SHA-1 asset deduplication and
-              real-time Server-Sent Events (SSE) collaboration using a Room ID (<code>board_xxxxxx</code>).
-            </p>
-          </div>
-
-          <div class="card">
-            <div class="card-icon">🚀</div>
-            <h3>Portable Save &amp; Native Drag-Out</h3>
-            <p>
-              Save self-contained <code>.artbrd.json</code> boards with embedded media, or drag any
-              item past the window edge straight into Photoshop, Blender, or Explorer.
-            </p>
-          </div>
-        </div>
-
-        <div class="themes-strip">
-          <div class="theme-chip"><span class="theme-swatch" style="background:#1a1c24"></span>Charcoal</div>
-          <div class="theme-chip"><span class="theme-swatch" style="background:#0c0d12"></span>Obsidian</div>
-          <div class="theme-chip"><span class="theme-swatch" style="background:#2b2e37"></span>Neutral</div>
-          <div class="theme-chip"><span class="theme-swatch" style="background:#1b2434"></span>Slate</div>
-          <div class="theme-chip"><span class="theme-swatch" style="background:#11213a"></span>Blueprint</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- User Guide Section -->
-    <section id="guide">
-      <div class="container">
-        <div class="section-head">
-          <div class="section-kicker">User Guide</div>
-          <h2>Get Started with PinSync in Minutes</h2>
-          <p>
-            Follow this quick guide to install PinSync, organize your reference board, collaborate live,
-            and drag assets straight into your creative tools.
-          </p>
-        </div>
-
-        <div class="guide-wrap">
-          <div class="guide-tabs" role="tablist">
-            <button class="guide-tab active" onclick="switchGuide('start', this)">1. Quick Start</button>
-            <button class="guide-tab" onclick="switchGuide('create', this)">2. Adding &amp; Editing</button>
-            <button class="guide-tab" onclick="switchGuide('collab', this)">3. Online Sync</button>
-            <button class="guide-tab" onclick="switchGuide('export', this)">4. Save &amp; Drag-Out</button>
-          </div>
-
-          <div class="guide-panel active" id="guide-start">
-            <div class="steps-list">
-              <div class="step-box">
-                <span class="step-num">STEP 01</span>
-                <h4>Download &amp; Install</h4>
-                <p>
-                  Click <strong>Download for Windows (.exe Setup)</strong> or use the Portable
-                  <code>.exe</code> (no installation needed). Linux users can run the
-                  <code>.AppImage</code>, <code>.deb</code>, or <code>.pacman</code> package.
-                </p>
-              </div>
-              <div class="step-box">
-                <span class="step-num">STEP 02</span>
-                <h4>Navigate the Canvas</h4>
-                <p>
-                  Pan freely with <strong>Middle Drag</strong>, <strong>Alt + Left Drag</strong>, or
-                  <strong>Space + Left Drag</strong>. Zoom smoothly with the <strong>Mouse Wheel</strong>.
-                  Drag the frameless window anywhere with <strong>Right Mouse Drag</strong>.
-                </p>
-              </div>
-              <div class="step-box">
-                <span class="step-num">STEP 03</span>
-                <h4>Toggle Zen Mode &amp; Always-on-Top</h4>
-                <p>
-                  Press <kbd>Tab</kbd> to hide the dock for distraction-free reference viewing, and
-                  pin PinSync above Photoshop or Blender using the TopBar pin toggle.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="guide-panel" id="guide-create">
-            <div class="steps-list">
-              <div class="step-box">
-                <span class="step-num">DROP &amp; PASTE</span>
-                <h4>Drop Files or Paste Anywhere</h4>
-                <p>
-                  Drag images, videos, audio, code files, or 3D/CAD models directly onto the board.
-                  Press <kbd>Ctrl</kbd>+<kbd>V</kbd> to paste clipboard screenshots, URLs, or code.
-                </p>
-              </div>
-              <div class="step-box">
-                <span class="step-num">DRAW &amp; ANNOTATE</span>
-                <h4>Type, Sketch &amp; Connect</h4>
-                <p>
-                  Start typing anywhere on empty canvas to create inline text. Press <kbd>Alt</kbd>+<kbd>D</kbd>
-                  for the Free-Draw Pen, or type <code>aaa</code> + <kbd>Space</kbd> to draw smart arrows.
-                </p>
-              </div>
-              <div class="step-box">
-                <span class="step-num">EYEDROPPER &amp; CROP</span>
-                <h4>Color Swatches &amp; Non-Destructive Crop</h4>
-                <p>
-                  Press <kbd>Alt</kbd>+<kbd>I</kbd> to sample any screen color into a copyable hex
-                  swatch card. Hold <kbd>Alt</kbd>+<kbd>Shift</kbd>+Drag on any image to crop non-destructively.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="guide-panel" id="guide-collab">
-            <div class="steps-list">
-              <div class="step-box">
-                <span class="step-num">CENTRAL SERVER</span>
-                <h4>Host or Connect to a Server</h4>
-                <p>
-                  PinSync includes a built-in Central Server on port <code>4580</code> (or run
-                  <code>npm run server</code> standalone). Open the <strong>Online</strong> modal in the TopBar.
-                </p>
-              </div>
-              <div class="step-box">
-                <span class="step-num">SHARE ROOM ID</span>
-                <h4>Real-Time SSE Collaboration</h4>
-                <p>
-                  Share your Room / Board ID (<code>board_xxxxxx</code>) with teammates. Every edit
-                  broadcasts over Server-Sent Events (SSE) in real time.
-                </p>
-              </div>
-              <div class="step-box">
-                <span class="step-num">DEDUPLICATION</span>
-                <h4>Automatic SHA-1 Asset Sync</h4>
-                <p>
-                  Images, videos, audio, and 3D models are deduplicated by SHA-1 hash on the central
-                  server so collaborators automatically download and render every asset.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="guide-panel" id="guide-export">
-            <div class="steps-list">
-              <div class="step-box">
-                <span class="step-num">PORTABLE SAVE</span>
-                <h4>Self-Contained .artbrd.json</h4>
-                <p>
-                  Saving a board embeds all referenced local media files directly into a single
-                  <code>.artbrd.json</code> file so it opens cleanly on any other computer.
-                </p>
-              </div>
-              <div class="step-box">
-                <span class="step-num">NATIVE DRAG-OUT</span>
-                <h4>Drag Out to Any App</h4>
-                <p>
-                  Click, hold, and drag any item past the edge of the PinSync window to drop it
-                  directly onto your Desktop, File Explorer, Photoshop, or Blender.
-                </p>
-              </div>
-              <div class="step-box">
-                <span class="step-num">QUICK ARRANGE</span>
-                <h4>Optimal Packing &amp; Search</h4>
-                <p>
-                  Press <kbd>Ctrl</kbd>+<kbd>P</kbd> to auto-arrange items neatly, or
-                  <kbd>Ctrl</kbd>+<kbd>K</kbd> to jump to any item on large boards.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Essential Shortcuts Section -->
-    <section id="shortcuts">
-      <div class="container">
-        <div class="section-head">
-          <div class="section-kicker">Controls &amp; Shortcuts</div>
-          <h2>Built for Speed</h2>
-          <p>Press <kbd>F1</kbd> inside PinSync anytime to customize every shortcut.</p>
-        </div>
-
-        <div class="guide-wrap table-wrap">
-          <table class="shortcuts">
-            <thead>
-              <tr>
-                <th>Action</th>
-                <th>Shortcut / Gesture</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Pan Canvas</td>
-                <td><kbd>Middle Drag</kbd>, <kbd>Alt</kbd> + <kbd>Left Drag</kbd>, or <kbd>Space</kbd> + <kbd>Left Drag</kbd></td>
-              </tr>
-              <tr>
-                <td>Zoom Canvas</td>
-                <td><kbd>Mouse Wheel</kbd> or <kbd>Z</kbd> + <kbd>Drag</kbd></td>
-              </tr>
-              <tr>
-                <td>Move Window / Context Menu</td>
-                <td><kbd>Right Drag</kbd> / <kbd>Right Click</kbd></td>
-              </tr>
-              <tr>
-                <td>Free-Draw Pen</td>
-                <td><kbd>Alt</kbd> + <kbd>D</kbd></td>
-              </tr>
-              <tr>
-                <td>Draw Arrow</td>
-                <td><kbd>Alt</kbd> + <kbd>A</kbd> or type <code>aaa</code> + <kbd>Space</kbd></td>
-              </tr>
-              <tr>
-                <td>Screen Eyedropper</td>
-                <td><kbd>Alt</kbd> + <kbd>I</kbd></td>
-              </tr>
-              <tr>
-                <td>Arrange Optimal</td>
-                <td><kbd>Ctrl</kbd> + <kbd>P</kbd></td>
-              </tr>
-              <tr>
-                <td>Zen Mode (Hide Dock)</td>
-                <td><kbd>Tab</kbd></td>
-              </tr>
-              <tr>
-                <td>Jump / Search Items</td>
-                <td><kbd>Ctrl</kbd> + <kbd>K</kbd></td>
-              </tr>
-              <tr>
-                <td>Shortcut Settings</td>
-                <td><kbd>F1</kbd></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Creator Section -->
-    <section id="creator">
-      <div class="container">
-        <div class="creator-card">
-          <div class="creator-info">
-            <img src="assets/icon.png" alt="Sabarees" />
-            <div>
-              <h3>Created by Sabarees</h3>
-              <p>
-                Designer &amp; Developer of PinSync. Visit my portfolio for more projects, updates,
-                and contact details.
-              </p>
-            </div>
-          </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PinSync — Freeform Reference Canvas | First 50 Users Free</title>
+    <meta
+      name="description"
+      content="PinSync is a PureRef-style freeform reference canvas for images, videos, webpages, audio, 30+ 3D/CAD models, free-draw sketches, flowcharts, and code — with live central server sync and native OS drag-out. Free for the first 50 users!"
+    />
+    <link rel="icon" type="image/png" href="assets/icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #09090b;
+        --surface: #111217;
+        --surface-2: #171921;
+        --surface-3: #1e212b;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-hover: rgba(255, 255, 255, 0.18);
+        --text: #fafafa;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --accent: #38bdf8;
+        --accent-indigo: #818cf8;
+        --emerald: #34d399;
+        --amber: #fbbf24;
+        --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+        --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        --font-mono: 'JetBrains Mono', Consolas, monospace;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Subtle ambient background */
+      .ambient-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+          radial-gradient(900px 500px at 50% -10%, rgba(56, 189, 248, 0.13), transparent 70%),
+          radial-gradient(700px 420px at 85% 18%, rgba(129, 140, 248, 0.09), transparent 65%),
+          radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+        background-size:
+          100% 100%,
+          100% 100%,
+          24px 24px;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .container {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* Floating Glass Navbar */
+      .nav-wrap {
+        position: sticky;
+        top: 14px;
+        z-index: 60;
+        padding: 0 16px;
+      }
+
+      .nav {
+        max-width: 1128px;
+        margin: 0 auto;
+        height: 58px;
+        padding: 0 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        background: rgba(17, 18, 23, 0.72);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+      }
+
+      .brand img {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+
+      .nav-links a {
+        transition: color 0.15s;
+      }
+
+      .nav-links a:hover {
+        color: var(--text);
+      }
+
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-spot-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 11px;
+        border-radius: 999px;
+        background: rgba(52, 211, 153, 0.1);
+        border: 1px solid rgba(52, 211, 153, 0.28);
+        color: var(--emerald);
+        font-family: var(--font-mono);
+        font-size: 0.76rem;
+        font-weight: 600;
+      }
+
+      .nav-creator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 13px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        font-size: 0.82rem;
+        font-weight: 500;
+        transition: all 0.18s;
+      }
+
+      .nav-creator:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--border-hover);
+      }
+
+      /* Hero */
+      .hero {
+        padding: 68px 0 48px;
+        text-align: center;
+      }
+
+      .launch-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border-hover);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 24px;
+      }
+
+      .launch-pill .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--emerald);
+        box-shadow: 0 0 10px var(--emerald);
+      }
+
+      .launch-pill strong {
+        color: var(--emerald);
+        font-weight: 600;
+      }
+
+      .hero h1 {
+        font-family: var(--font-display);
+        font-size: clamp(2.5rem, 5.4vw, 4.25rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 1.06;
+        max-width: 860px;
+        margin: 0 auto 20px;
+      }
+
+      .hero h1 .grad {
+        background: linear-gradient(135deg, #ffffff 15%, #38bdf8 60%, #818cf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero-sub {
+        font-size: 1.125rem;
+        color: var(--text-secondary);
+        max-width: 660px;
+        margin: 0 auto 36px;
+        font-weight: 400;
+      }
+
+      /* Download & Counter Dock */
+      .download-dock {
+        max-width: 760px;
+        margin: 0 auto 48px;
+        background: linear-gradient(180deg, rgba(23, 25, 33, 0.9), rgba(17, 18, 23, 0.95));
+        border: 1px solid var(--border-hover);
+        border-radius: 20px;
+        padding: 22px 24px;
+        box-shadow:
+          0 24px 60px rgba(0, 0, 0, 0.55),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .counter-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .counter-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+      }
+
+      .counter-badge-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(52, 211, 153, 0.12);
+        border: 1px solid rgba(52, 211, 153, 0.25);
+        color: var(--emerald);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .counter-left h3 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .counter-left p {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+      }
+
+      .counter-right {
+        text-align: right;
+      }
+
+      .counter-stat {
+        font-family: var(--font-mono);
+        font-size: 1.45rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .counter-stat span.muted {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 18px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--emerald), var(--accent), var(--accent-indigo));
+        transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .cta-group {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.16s ease;
+        font-family: var(--font-sans);
+      }
+
+      .btn-primary {
+        background: #ffffff;
+        color: #09090b;
+        box-shadow: 0 8px 24px rgba(255, 255, 255, 0.14);
+      }
+
+      .btn-primary:hover {
+        background: #e4e4e7;
+        transform: translateY(-1px);
+      }
+
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        border-color: var(--border);
+      }
+
+      .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: var(--border-hover);
+        transform: translateY(-1px);
+      }
+
+      .dock-footnote {
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      /* App Window Showcase */
+      .window-frame {
+        border-radius: 18px;
+        border: 1px solid var(--border-hover);
+        background: #12131a;
+        overflow: hidden;
+        box-shadow:
+          0 40px 100px rgba(0, 0, 0, 0.75),
+          0 0 80px rgba(56, 189, 248, 0.09);
+      }
+
+      .window-chrome {
+        height: 40px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.025);
+        border-bottom: 1px solid var(--border);
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .window-dots {
+        display: flex;
+        gap: 7px;
+      }
+
+      .window-dots span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      .window-dots span:nth-child(1) {
+        background: #ef4444;
+        opacity: 0.8;
+      }
+      .window-dots span:nth-child(2) {
+        background: #f59e0b;
+        opacity: 0.8;
+      }
+      .window-dots span:nth-child(3) {
+        background: #10b981;
+        opacity: 0.8;
+      }
+
+      .window-frame img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      /* Sections */
+      section {
+        padding: 84px 0;
+      }
+
+      .section-header {
+        text-align: center;
+        max-width: 640px;
+        margin: 0 auto 48px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 10px;
+      }
+
+      .section-header h2 {
+        font-family: var(--font-display);
+        font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin-bottom: 12px;
+      }
+
+      .section-header p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+      }
+
+      /* Interactive Mini-Canvas Playground */
+      .playground-shell {
+        border-radius: 20px;
+        border: 1px solid var(--border-hover);
+        overflow: hidden;
+        background: #1a1c24;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .playground-bar {
+        padding: 12px 18px;
+        background: rgba(9, 9, 11, 0.65);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .playground-hint {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .theme-pills {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .theme-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 11px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-secondary);
+        font-size: 0.78rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .theme-pill.active,
+      .theme-pill:hover {
+        border-color: var(--accent);
+        color: #fff;
+        background: rgba(56, 189, 248, 0.12);
+      }
+
+      .theme-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .mini-canvas {
+        position: relative;
+        height: 360px;
+        overflow: hidden;
+        background-color: #1a1c24;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+        background-size: 22px 22px;
+        transition: background-color 0.25s ease;
+        user-select: none;
+      }
+
+      .drag-card {
+        position: absolute;
+        border-radius: 12px;
+        background: rgba(17, 18, 23, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+        cursor: grab;
+        padding: 12px;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+
+      .drag-card:hover {
+        border-color: var(--accent);
+      }
+
+      .drag-card:active {
+        cursor: grabbing;
+        box-shadow: 0 22px 44px rgba(0, 0, 0, 0.65);
+      }
+
+      .drag-card-tag {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+      }
+
+      /* Bento Grid Features */
+      .bento {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 16px;
+      }
+
+      .bento-card {
+        grid-column: span 4;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 18px;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+      }
+
+      .bento-card.wide {
+        grid-column: span 6;
+      }
+
+      .bento-card:hover {
+        border-color: var(--border-hover);
+        transform: translateY(-2px);
+      }
+
+      .bento-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+      }
+
+      .bento-card h3 {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .bento-card p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .micro-ui {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-family: var(--font-mono);
+        font-size: 0.76rem;
+        color: var(--text-secondary);
+      }
+
+      .format-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .format-chip {
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        font-size: 0.72rem;
+        color: var(--text);
+      }
+
+      /* User Guide */
+      .guide-shell {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 28px;
+      }
+
+      .guide-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding-bottom: 20px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .guide-tab {
+        padding: 8px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: var(--font-sans);
+      }
+
+      .guide-tab.active,
+      .guide-tab:hover {
+        background: #ffffff;
+        color: #09090b;
+        border-color: #ffffff;
+      }
+
+      .guide-panel {
+        display: none;
+      }
+
+      .guide-panel.active {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .guide-step {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+      }
+
+      .guide-step-num {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--accent);
+        margin-bottom: 8px;
+        display: block;
+      }
+
+      .guide-step h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      .guide-step p {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+      }
+
+      /* Shortcuts Grid */
+      .shortcuts-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .shortcut-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 18px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        font-size: 0.9rem;
+      }
+
+      .shortcut-item span {
+        color: var(--text-secondary);
+      }
+
+      kbd {
+        font-family: var(--font-mono);
+        font-size: 0.76rem;
+        background: var(--surface-3);
+        border: 1px solid var(--border-hover);
+        border-bottom-width: 2px;
+        border-radius: 6px;
+        padding: 2px 7px;
+        color: var(--text);
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.84em;
+        color: var(--accent);
+      }
+
+      /* Creator Card */
+      .creator-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+        background: linear-gradient(135deg, rgba(23, 25, 33, 0.95), rgba(17, 24, 39, 0.9));
+        border: 1px solid var(--border-hover);
+        border-radius: 20px;
+        padding: 32px;
+      }
+
+      .creator-left {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .creator-left img {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        border: 1px solid var(--border-hover);
+      }
+
+      .creator-left h3 {
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .creator-left p {
+        color: var(--text-secondary);
+        font-size: 0.92rem;
+      }
+
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--border);
+        padding: 32px 0 48px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+      }
+
+      .footer-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 20px;
+      }
+
+      .footer-links a:hover {
+        color: var(--text);
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 100;
+        background: var(--surface-2);
+        border: 1px solid var(--accent);
+        color: var(--text);
+        padding: 14px 18px;
+        border-radius: 14px;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+        max-width: 360px;
+        font-size: 0.88rem;
+        display: none;
+      }
+
+      .toast.show {
+        display: block;
+        animation: fadeUp 0.22s ease;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .bento-card,
+        .bento-card.wide {
+          grid-column: span 12;
+        }
+        .guide-panel.active {
+          grid-template-columns: 1fr;
+        }
+        .shortcuts-grid {
+          grid-template-columns: 1fr;
+        }
+        .cta-group {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 700px) {
+        .nav-links,
+        .nav-spot-pill {
+          display: none;
+        }
+        .hero {
+          padding-top: 44px;
+        }
+        .mini-canvas {
+          height: 300px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ambient-bg"></div>
+
+    <!-- Floating Navbar -->
+    <div class="nav-wrap">
+      <header class="nav">
+        <a href="#" class="brand">
+          <img src="assets/icon.png" alt="PinSync" />
+          <span>PinSync</span>
+        </a>
+
+        <nav class="nav-links">
+          <a href="#playground">Playground</a>
+          <a href="#features">Features</a>
+          <a href="#guide">User Guide</a>
+          <a href="#shortcuts">Shortcuts</a>
+        </nav>
+
+        <div class="nav-right">
+          <a href="#download-dock" class="nav-spot-pill" id="nav-spot-pill">-- / 50 Free</a>
           <a
             href="https://sabarees.netlify.app/"
             target="_blank"
             rel="noopener noreferrer"
-            class="btn btn-primary"
+            class="nav-creator"
           >
-            Visit sabarees.netlify.app ↗
+            <span>Sabarees</span>
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M7 17 17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
           </a>
         </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container footer-inner">
-      <div>
-        © 2026 PinSync · Built by
-        <a href="https://sabarees.netlify.app/" target="_blank" rel="noopener noreferrer" style="color: var(--accent);">
-          Sabarees
-        </a>
-        · MIT License
-      </div>
-      <div class="footer-links">
-        <a href="#download-counter">Free 50 Counter</a>
-        <a href="#features">Features</a>
-        <a href="#guide">User Guide</a>
-        <a href="https://sabarees.netlify.app/" target="_blank" rel="noopener noreferrer">Portfolio ↗</a>
-      </div>
+      </header>
     </div>
-  </footer>
 
-  <div class="toast" id="toast"></div>
+    <main>
+      <!-- Hero -->
+      <section class="hero">
+        <div class="container">
+          <div class="launch-pill">
+            <span class="dot"></span>
+            <span><strong>First 50 Users Free</strong> · Early Access Launch</span>
+          </div>
 
-  <script>
-    // =========================================================================
-    // PinSync Global 50-User Free Download Counter
-    // Uses CounterAPI.dev (CORS-enabled global counter) with localStorage fallback
-    // Creator can check live count anytime at:
-    // https://api.counterapi.dev/v1/sabarees-pinsync/free50-downloads
-    // =========================================================================
-    const MAX_FREE_USERS = 50;
-    const COUNTER_API_BASE = 'https://api.counterapi.dev/v1/sabarees-pinsync/free50-downloads';
-    const LOCAL_FALLBACK_KEY = 'pinsync_free50_downloads_v1';
+          <h1>
+            The Freeform Canvas for<br />
+            <span class="grad">Every Reference You Need.</span>
+          </h1>
 
-    // Update these URLs to your published GitHub Release or hosted installer files
-    const DOWNLOAD_URLS = {
-      'win-setup': 'https://github.com/YOUR_USERNAME/PinSync/releases/latest',
-      'win-portable': 'https://github.com/YOUR_USERNAME/PinSync/releases/latest',
-      'linux': 'https://github.com/YOUR_USERNAME/PinSync/releases/latest'
-    };
+          <p class="hero-sub">
+            PureRef-style infinite workspace for images, videos, webpages, audio, 30+ 3D &amp; CAD
+            formats, free-draw sketches, flowcharts, and code — with live central server sync and
+            native OS drag-out.
+          </p>
 
-    function renderCounter(count, source) {
-      const safeCount = Math.max(0, Number(count) || 0);
-      const remaining = Math.max(0, MAX_FREE_USERS - safeCount);
-      const pct = Math.min(100, Math.round((safeCount / MAX_FREE_USERS) * 100));
-      const reached = safeCount >= MAX_FREE_USERS;
+          <!-- Download & Live 50-User Counter Dock -->
+          <div class="download-dock" id="download-dock">
+            <div class="counter-row">
+              <div class="counter-left">
+                <div class="counter-badge-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" x2="12" y1="15" y2="3" />
+                  </svg>
+                </div>
+                <div>
+                  <h3>First 50 Users Download Free for Everyone</h3>
+                  <p id="dl-status">Checking live global counter…</p>
+                </div>
+              </div>
+              <div class="counter-right">
+                <div class="counter-stat">
+                  <span id="dl-count">0</span> <span class="muted">/ 50</span>
+                </div>
+              </div>
+            </div>
 
-      document.getElementById('dl-count').textContent = safeCount;
-      document.getElementById('dl-progress').style.width = pct + '%';
+            <div class="progress-bar">
+              <div class="progress-fill" id="dl-progress"></div>
+            </div>
 
-      const statusEl = document.getElementById('dl-status');
-      const remEl = document.getElementById('dl-remaining');
-      const promoEl = document.getElementById('promo-remaining-text');
-      const dotEl = document.getElementById('counter-dot');
+            <div class="cta-group">
+              <button class="btn btn-primary" onclick="handleDownload('win-setup')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" x2="12" y1="15" y2="3" />
+                </svg>
+                <span>Windows Setup (.exe)</span>
+              </button>
+              <button class="btn btn-ghost" onclick="handleDownload('win-portable')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect width="16" height="16" x="4" y="4" rx="2" />
+                  <path d="M9 9h6v6H9z" />
+                </svg>
+                <span>Windows Portable</span>
+              </button>
+              <button class="btn btn-ghost" onclick="handleDownload('linux')">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="4 17 10 11 4 5" />
+                  <line x1="12" x2="20" y1="19" y2="19" />
+                </svg>
+                <span>Linux (.AppImage / .deb)</span>
+              </button>
+            </div>
 
-      if (reached) {
-        statusEl.textContent = '🎉 50 / 50 Free User Milestone Reached!';
-        statusEl.classList.add('reached');
-        remEl.textContent = '0 free spots left';
-        promoEl.textContent = '(50 / 50 free spots claimed!)';
-        dotEl.style.background = '#fbbf24';
-        dotEl.style.boxShadow = '0 0 10px #fbbf24';
-      } else {
-        statusEl.textContent =
-          source === 'local'
-            ? 'Free for everyone — local counter active'
-            : 'Free for everyone — live global count';
-        statusEl.classList.remove('reached');
-        remEl.textContent = remaining + (remaining === 1 ? ' spot left' : ' spots left');
-        promoEl.textContent = '(' + remaining + ' of 50 free spots remaining)';
+            <div class="dock-footnote">
+              <span id="dl-remaining">50 free spots remaining</span>
+              <span
+                >v1.0.0 · MIT License · Built by
+                <a
+                  href="https://sabarees.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style="color: var(--accent)"
+                  >Sabarees</a
+                ></span
+              >
+            </div>
+          </div>
+
+          <!-- App Window Showcase -->
+          <div class="window-frame">
+            <div class="window-chrome">
+              <div class="window-dots"><span></span><span></span><span></span></div>
+              <span>PinSync Studio Showcase — Live App Screenshot</span>
+              <span style="font-family: var(--font-mono)">100% · Always on Top</span>
+            </div>
+            <img
+              src="assets/pinsync-real.png"
+              alt="Real screenshot of PinSync reference canvas showing images, color swatches, flowchart nodes, TypeScript code card, free-draw sketch, and floating dock"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- Interactive Playground -->
+      <section id="playground">
+        <div class="container">
+          <div class="section-header">
+            <span class="eyebrow">Interactive Preview</span>
+            <h2>Try the Canvas Feel Right Here</h2>
+            <p>Drag the cards around and switch between all 5 built-in PinSync board themes.</p>
+          </div>
+
+          <div class="playground-shell">
+            <div class="playground-bar">
+              <div class="playground-hint">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 9l-3 3 3 3" />
+                  <path d="M9 5l3-3 3 3" />
+                  <path d="M15 19l-3 3-3-3" />
+                  <path d="M19 9l3 3-3 3" />
+                  <line x1="2" x2="22" y1="12" y2="12" />
+                  <line x1="12" x2="12" y1="2" y2="22" />
+                </svg>
+                <span>Drag any card on the canvas</span>
+              </div>
+              <div class="theme-pills">
+                <button class="theme-pill active" onclick="setCanvasTheme('#1a1c24', this)">
+                  <span class="theme-dot" style="background: #1a1c24"></span>Charcoal
+                </button>
+                <button class="theme-pill" onclick="setCanvasTheme('#0c0d12', this)">
+                  <span class="theme-dot" style="background: #0c0d12"></span>Obsidian
+                </button>
+                <button class="theme-pill" onclick="setCanvasTheme('#2b2e37', this)">
+                  <span class="theme-dot" style="background: #2b2e37"></span>Neutral
+                </button>
+                <button class="theme-pill" onclick="setCanvasTheme('#1b2434', this)">
+                  <span class="theme-dot" style="background: #1b2434"></span>Slate
+                </button>
+                <button class="theme-pill" onclick="setCanvasTheme('#11213a', this)">
+                  <span class="theme-dot" style="background: #11213a"></span>Blueprint
+                </button>
+              </div>
+            </div>
+
+            <div class="mini-canvas" id="mini-canvas">
+              <div class="drag-card" style="left: 4%; top: 38px; width: 220px">
+                <div class="drag-card-tag">3D / CAD Model</div>
+                <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 6px">
+                  robot_arm.step
+                </div>
+                <div style="font-size: 0.78rem; color: var(--text-secondary)">
+                  Interactive Three.js + OCCT viewport · GLB, FBX, STL, STEP
+                </div>
+              </div>
+
+              <div class="drag-card" style="left: 34%; top: 64px; width: 250px">
+                <div class="drag-card-tag">Code Snippet</div>
+                <pre
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: 0.74rem;
+                    color: #cbd5e1;
+                    overflow: hidden;
+                  "
+                >
+const sync = await joinBoard({
+  room: "board_84f2a1",
+  mode: "sse-realtime"
+});</pre>
+              </div>
+
+              <div class="drag-card" style="left: 68%; top: 44px; width: 210px">
+                <div class="drag-card-tag">Color Swatches · Alt+I</div>
+                <div style="display: flex; gap: 6px; margin-top: 6px">
+                  <span
+                    style="flex: 1; height: 28px; border-radius: 6px; background: #38bdf8"
+                  ></span>
+                  <span
+                    style="flex: 1; height: 28px; border-radius: 6px; background: #818cf8"
+                  ></span>
+                  <span
+                    style="flex: 1; height: 28px; border-radius: 6px; background: #34d399"
+                  ></span>
+                  <span
+                    style="flex: 1; height: 28px; border-radius: 6px; background: #fbbf24"
+                  ></span>
+                </div>
+              </div>
+
+              <div class="drag-card" style="left: 18%; top: 210px; width: 260px">
+                <div class="drag-card-tag">Flowchart &amp; Arrows · aaa + Space</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary)">
+                  6 node shapes with quick-connect ports &amp; curved/elbow arrows
+                </div>
+              </div>
+
+              <div class="drag-card" style="left: 58%; top: 200px; width: 240px">
+                <div class="drag-card-tag">Native OS Drag-Out</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary)">
+                  Drag past window edge into Photoshop, Blender, or Explorer
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bento Features -->
+      <section id="features">
+        <div class="container">
+          <div class="section-header">
+            <span class="eyebrow">Capabilities</span>
+            <h2>11 Content Types. Zero Friction.</h2>
+            <p>
+              Engineered for artists, 3D modelers, engineers, and teams who live in reference
+              boards.
+            </p>
+          </div>
+
+          <div class="bento">
+            <div class="bento-card wide">
+              <div>
+                <div class="bento-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                    />
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                    <line x1="12" x2="12" y1="22.08" y2="12" />
+                  </svg>
+                </div>
+                <h3>30+ 3D &amp; CAD Formats Built-In</h3>
+                <p>
+                  Inspect meshes, point clouds, and industrial CAD assemblies right on the canvas
+                  with Three.js and <code>occt-import-js</code>.
+                </p>
+              </div>
+              <div class="micro-ui">
+                <div class="format-chips">
+                  <span class="format-chip">.GLB</span>
+                  <span class="format-chip">.GLTF</span>
+                  <span class="format-chip">.FBX</span>
+                  <span class="format-chip">.OBJ</span>
+                  <span class="format-chip">.STL</span>
+                  <span class="format-chip">.STEP</span>
+                  <span class="format-chip">.IGES</span>
+                  <span class="format-chip">.USDZ</span>
+                  <span class="format-chip">.PLY</span>
+                  <span class="format-chip">.SPLAT</span>
+                  <span class="format-chip">.ZIP</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bento-card wide">
+              <div>
+                <div class="bento-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                </div>
+                <h3>Live Central Server &amp; SSE Sync</h3>
+                <p>
+                  Run the built-in server on <code>:4580</code>, share a
+                  <code>board_xxxxxx</code> Room ID, and collaborate in real time with SHA-1
+                  deduplicated assets.
+                </p>
+              </div>
+              <div class="micro-ui">
+                GET /api/boards/board_84f2a1/events · SSE Connected · SHA-1 Asset Sync OK
+              </div>
+            </div>
+
+            <div class="bento-card">
+              <div>
+                <div class="bento-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                    <circle cx="9" cy="9" r="2" />
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                  </svg>
+                </div>
+                <h3>Images, Video &amp; Audio</h3>
+                <p>
+                  Non-destructive crop (<code>Alt+Shift+Drag</code>), grayscale, flip, video
+                  scrubbing (0.5x–2x), and Web Audio waveforms.
+                </p>
+              </div>
+            </div>
+
+            <div class="bento-card">
+              <div>
+                <div class="bento-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="m12 19 7-7 3 3-7 7-3-3z" />
+                    <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                  </svg>
+                </div>
+                <h3>Free-Draw, Flowcharts &amp; Arrows</h3>
+                <p>
+                  Vector SVG pen (<code>Alt+D</code>), 6 flowchart node shapes, and instant arrows
+                  via <code>aaa</code> + <code>Space</code> or <code>Alt+A</code>.
+                </p>
+              </div>
+            </div>
+
+            <div class="bento-card">
+              <div>
+                <div class="bento-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                </div>
+                <h3>Portable Save &amp; Drag-Out</h3>
+                <p>
+                  Save self-contained <code>.artbrd.json</code> files or drag any item past the
+                  window edge into Photoshop or Blender.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- User Guide -->
+      <section id="guide">
+        <div class="container">
+          <div class="section-header">
+            <span class="eyebrow">User Guide</span>
+            <h2>Up and Running in 4 Steps</h2>
+            <p>Everything you need to install, organize, collaborate, and export from PinSync.</p>
+          </div>
+
+          <div class="guide-shell">
+            <div class="guide-tabs">
+              <button class="guide-tab active" onclick="switchGuide('start', this)">
+                1. Quick Start
+              </button>
+              <button class="guide-tab" onclick="switchGuide('create', this)">
+                2. Adding &amp; Editing
+              </button>
+              <button class="guide-tab" onclick="switchGuide('collab', this)">
+                3. Online Sync
+              </button>
+              <button class="guide-tab" onclick="switchGuide('export', this)">
+                4. Save &amp; Drag-Out
+              </button>
+            </div>
+
+            <div class="guide-panel active" id="guide-start">
+              <div class="guide-step">
+                <span class="guide-step-num">01 / INSTALL</span>
+                <h4>Download &amp; Launch</h4>
+                <p>
+                  Choose Windows Setup (<code>.exe</code>), Windows Portable, or Linux (<code
+                    >.AppImage</code
+                  >
+                  / <code>.deb</code>). First 50 users get it completely free.
+                </p>
+              </div>
+              <div class="guide-step">
+                <span class="guide-step-num">02 / NAVIGATE</span>
+                <h4>Pan, Zoom &amp; Move Window</h4>
+                <p>
+                  Pan with <strong>Middle</strong>, <strong>Alt+Left</strong>, or
+                  <strong>Space+Left Drag</strong>. Zoom with the wheel. Drag the frameless window
+                  via <strong>Right Drag</strong>.
+                </p>
+              </div>
+              <div class="guide-step">
+                <span class="guide-step-num">03 / FOCUS</span>
+                <h4>Zen Mode &amp; Always-on-Top</h4>
+                <p>
+                  Press <kbd>Tab</kbd> to hide the dock for distraction-free viewing, and pin
+                  PinSync above your creative apps.
+                </p>
+              </div>
+            </div>
+
+            <div class="guide-panel" id="guide-create">
+              <div class="guide-step">
+                <span class="guide-step-num">01 / DROP &amp; PASTE</span>
+                <h4>Add Any Media or Code</h4>
+                <p>
+                  Drag files onto the canvas or press <kbd>Ctrl</kbd>+<kbd>V</kbd> to paste
+                  screenshots, URLs, or syntax-highlighted code snippets.
+                </p>
+              </div>
+              <div class="guide-step">
+                <span class="guide-step-num">02 / SKETCH</span>
+                <h4>Inline Text, Pen &amp; Arrows</h4>
+                <p>
+                  Start typing anywhere on empty canvas. Press <kbd>Alt</kbd>+<kbd>D</kbd> to sketch
+                  or type <code>aaa</code> + <kbd>Space</kbd> for smart arrows.
+                </p>
+              </div>
+              <div class="guide-step">
+                <span class="guide-step-num">03 / SAMPLE</span>
+                <h4>Eyedropper &amp; Crop</h4>
+                <p>
+                  Press <kbd>Alt</kbd>+<kbd>I</kbd> to pick any screen color into a hex swatch. Hold
+                  <kbd>Alt</kbd>+<kbd>Shift</kbd>+Drag to crop images non-destructively.
+                </p>
+              </div>
+            </div>
+
+            <div class="guide-panel" id="guide-collab">
+              <div class="guide-step">
+                <span class="guide-step-num">01 / SERVER</span>
+                <h4>Built-in Central Server</h4>
+                <p>
+                  Start the built-in server on port <code>4580</code> or run
+                  <code>npm run server</code> standalone for team hosting.
+                </p>
+              </div>
+              <div class="guide-step">
+                <span class="guide-step-num">02 / ROOM ID</span>
+                <h4>Share a Board ID</h4>
+                <p>
+                  Open the <strong>Online</strong> modal and share your
+                  <code>board_xxxxxx</code> Room ID so peers sync edits over SSE in real time.
+                </p>
+              </div>
+              <div class="guide-step">
+                <span class="guide-step-num">03 / ASSETS</span>
+                <h4>Automatic Deduplication</h4>
+                <p>
+                  Media and 3D models are hashed with SHA-1 and stored centrally so teammates
+                  automatically render every asset.
+                </p>
+              </div>
+            </div>
+
+            <div class="guide-panel" id="guide-export">
+              <div class="guide-step">
+                <span class="guide-step-num">01 / PORTABLE</span>
+                <h4>Self-Contained .artbrd.json</h4>
+                <p>
+                  Saving a board embeds all local media directly inside one
+                  <code>.artbrd.json</code> file so it opens cleanly anywhere.
+                </p>
+              </div>
+              <div class="guide-step">
+                <span class="guide-step-num">02 / DRAG-OUT</span>
+                <h4>Native OS Drag-Out</h4>
+                <p>
+                  Click, hold, and drag any item past the edge of the PinSync window to drop it into
+                  Explorer, Photoshop, or Blender.
+                </p>
+              </div>
+              <div class="guide-step">
+                <span class="guide-step-num">03 / ORGANIZE</span>
+                <h4>Optimal Pack &amp; Jump</h4>
+                <p>
+                  Press <kbd>Ctrl</kbd>+<kbd>P</kbd> to auto-arrange items neatly, or
+                  <kbd>Ctrl</kbd>+<kbd>K</kbd> to search and jump on huge boards.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Shortcuts -->
+      <section id="shortcuts">
+        <div class="container">
+          <div class="section-header">
+            <span class="eyebrow">Keyboard &amp; Mouse</span>
+            <h2>Essential Controls</h2>
+            <p>Press <kbd>F1</kbd> inside PinSync anytime to view or rebind any shortcut.</p>
+          </div>
+
+          <div class="shortcuts-grid">
+            <div class="shortcut-item">
+              <span>Pan Canvas</span>
+              <div><kbd>Middle</kbd> · <kbd>Alt+Drag</kbd> · <kbd>Space+Drag</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Zoom Canvas</span>
+              <div><kbd>Mouse Wheel</kbd> · <kbd>Z+Drag</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Move Window / Menu</span>
+              <div><kbd>Right Drag</kbd> / <kbd>Right Click</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Free-Draw Pen</span>
+              <div><kbd>Alt</kbd> + <kbd>D</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Draw Arrow</span>
+              <div><kbd>Alt</kbd> + <kbd>A</kbd> or <code>aaa</code> + <kbd>Space</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Screen Eyedropper</span>
+              <div><kbd>Alt</kbd> + <kbd>I</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Arrange Optimal</span>
+              <div><kbd>Ctrl</kbd> + <kbd>P</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Zen Mode (Hide Dock)</span>
+              <div><kbd>Tab</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Jump / Search Items</span>
+              <div><kbd>Ctrl</kbd> + <kbd>K</kbd></div>
+            </div>
+            <div class="shortcut-item">
+              <span>Shortcut Settings</span>
+              <div><kbd>F1</kbd></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Creator -->
+      <section id="creator">
+        <div class="container">
+          <div class="creator-banner">
+            <div class="creator-left">
+              <img src="assets/icon.png" alt="Sabarees" />
+              <div>
+                <h3>Built by Sabarees</h3>
+                <p>
+                  Creator of PinSync. Explore more tools, projects, and contact info on my
+                  portfolio.
+                </p>
+              </div>
+            </div>
+            <a
+              href="https://sabarees.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-primary"
+            >
+              <span>Visit sabarees.netlify.app</span>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M7 17 17 7" />
+                <path d="M7 7h10v10" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container footer-inner">
+        <div>
+          © 2026 PinSync · Created by
+          <a
+            href="https://sabarees.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style="color: var(--text)"
+            >Sabarees</a
+          >
+          · MIT License
+        </div>
+        <div class="footer-links">
+          <a href="#download-dock">Free 50 Counter</a>
+          <a href="#playground">Playground</a>
+          <a href="#guide">User Guide</a>
+          <a href="https://sabarees.netlify.app/" target="_blank" rel="noopener noreferrer"
+            >sabarees.netlify.app ↗</a
+          >
+        </div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      // =========================================================================
+      // PinSync Global 50-User Free Download Counter
+      // Powered by Abacus (abacus.jasoncameron.dev) with localStorage fallback.
+      // Check live global count anytime:
+      // https://abacus.jasoncameron.dev/get/sabarees-pinsync/free50
+      // =========================================================================
+      const MAX_FREE_USERS = 50
+      const COUNTER_NS = 'sabarees-pinsync'
+      const COUNTER_KEY = 'free50'
+      const LOCAL_KEY = 'pinsync_free50_downloads_v1'
+
+      // Update these URLs to your published GitHub Release or direct installer links
+      const DOWNLOAD_URLS = {
+        'win-setup': 'https://github.com/YOUR_USERNAME/PinSync/releases/latest',
+        'win-portable': 'https://github.com/YOUR_USERNAME/PinSync/releases/latest',
+        linux: 'https://github.com/YOUR_USERNAME/PinSync/releases/latest'
       }
-    }
 
-    async function fetchDownloadCount() {
-      try {
-        const res = await fetch(COUNTER_API_BASE, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Counter API returned ' + res.status);
-        const data = await res.json();
-        const count = Number(data.count ?? 0);
-        localStorage.setItem(LOCAL_FALLBACK_KEY, String(count));
-        renderCounter(count, 'global');
-        return count;
-      } catch {
-        const localCount = Number(localStorage.getItem(LOCAL_FALLBACK_KEY) || 0);
-        renderCounter(localCount, 'local');
-        return localCount;
-      }
-    }
+      function renderCounter(count, mode) {
+        const safe = Math.max(0, Number(count) || 0)
+        const remaining = Math.max(0, MAX_FREE_USERS - safe)
+        const pct = Math.min(100, Math.round((safe / MAX_FREE_USERS) * 100))
+        const reached = safe >= MAX_FREE_USERS
 
-    async function incrementDownloadCount() {
-      try {
-        const res = await fetch(COUNTER_API_BASE + '/up', { cache: 'no-store' });
-        if (!res.ok) throw new Error('Counter API increment failed');
-        const data = await res.json();
-        const count = Number(data.count ?? 1);
-        localStorage.setItem(LOCAL_FALLBACK_KEY, String(count));
-        renderCounter(count, 'global');
-        return count;
-      } catch {
-        const next = Number(localStorage.getItem(LOCAL_FALLBACK_KEY) || 0) + 1;
-        localStorage.setItem(LOCAL_FALLBACK_KEY, String(next));
-        renderCounter(next, 'local');
-        return next;
-      }
-    }
+        document.getElementById('dl-count').textContent = safe
+        document.getElementById('dl-progress').style.width = pct + '%'
+        document.getElementById('nav-spot-pill').textContent = safe + ' / 50 Free'
 
-    function showToast(msg) {
-      const el = document.getElementById('toast');
-      el.innerHTML = msg;
-      el.classList.add('show');
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => el.classList.remove('show'), 5000);
-    }
+        const statusEl = document.getElementById('dl-status')
+        const remEl = document.getElementById('dl-remaining')
 
-    async function handleDownload(platform) {
-      const newCount = await incrementDownloadCount();
-      const targetUrl = DOWNLOAD_URLS[platform] || DOWNLOAD_URLS['win-setup'];
-
-      if (newCount <= MAX_FREE_USERS) {
-        showToast(
-          '<strong>Spot #' + newCount + ' of 50 claimed!</strong><br/>' +
-          'Thank you for downloading PinSync. Opening release package…'
-        );
-      } else {
-        showToast(
-          '<strong>Download #' + newCount + '</strong><br/>' +
-          'The first 50 free-launch spots are filled! Opening release package…'
-        );
+        if (reached) {
+          statusEl.textContent = '50 / 50 Free User Milestone Reached!'
+          statusEl.style.color = '#fbbf24'
+          remEl.textContent = '0 free spots remaining'
+        } else {
+          statusEl.textContent =
+            mode === 'global'
+              ? 'Live global counter · Free for everyone'
+              : 'Counter ready · Free for everyone'
+          statusEl.style.color = ''
+          remEl.textContent =
+            remaining + (remaining === 1 ? ' free spot remaining' : ' free spots remaining')
+        }
       }
 
-      window.open(targetUrl, '_blank', 'noopener,noreferrer');
-    }
+      async function fetchDownloadCount() {
+        try {
+          const res = await fetch(
+            `https://abacus.jasoncameron.dev/get/${COUNTER_NS}/${COUNTER_KEY}`,
+            {
+              cache: 'no-store'
+            }
+          )
+          if (res.status === 404) {
+            renderCounter(0, 'global')
+            return 0
+          }
+          if (!res.ok) throw new Error('Counter HTTP ' + res.status)
+          const data = await res.json()
+          const val = Number(data.value ?? 0)
+          localStorage.setItem(LOCAL_KEY, String(val))
+          renderCounter(val, 'global')
+          return val
+        } catch {
+          const local = Number(localStorage.getItem(LOCAL_KEY) || 0)
+          renderCounter(local, 'local')
+          return local
+        }
+      }
 
-    function switchGuide(panelId, btn) {
-      document.querySelectorAll('.guide-tab').forEach((t) => t.classList.remove('active'));
-      document.querySelectorAll('.guide-panel').forEach((p) => p.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('guide-' + panelId).classList.add('active');
-    }
+      async function incrementDownloadCount() {
+        try {
+          const res = await fetch(
+            `https://abacus.jasoncameron.dev/hit/${COUNTER_NS}/${COUNTER_KEY}`,
+            {
+              cache: 'no-store'
+            }
+          )
+          if (!res.ok) throw new Error('Hit HTTP ' + res.status)
+          const data = await res.json()
+          const val = Number(data.value ?? 1)
+          localStorage.setItem(LOCAL_KEY, String(val))
+          renderCounter(val, 'global')
+          return val
+        } catch {
+          const next = Number(localStorage.getItem(LOCAL_KEY) || 0) + 1
+          localStorage.setItem(LOCAL_KEY, String(next))
+          renderCounter(next, 'local')
+          return next
+        }
+      }
 
-    // Initialize live counter on page load
-    fetchDownloadCount();
-  </script>
-</body>
+      function showToast(html) {
+        const el = document.getElementById('toast')
+        el.innerHTML = html
+        el.classList.add('show')
+        clearTimeout(window.__toastTimer)
+        window.__toastTimer = setTimeout(() => el.classList.remove('show'), 5000)
+      }
+
+      async function handleDownload(platform) {
+        const count = await incrementDownloadCount()
+        const url = DOWNLOAD_URLS[platform] || DOWNLOAD_URLS['win-setup']
+        if (count <= MAX_FREE_USERS) {
+          showToast(
+            `<strong>Free Spot #${count} of 50 claimed!</strong><br/>Opening PinSync release package…`
+          )
+        } else {
+          showToast(
+            `<strong>Download #${count}</strong><br/>First 50 free spots are filled! Opening release package…`
+          )
+        }
+        window.open(url, '_blank', 'noopener,noreferrer')
+      }
+
+      function switchGuide(panelId, btn) {
+        document.querySelectorAll('.guide-tab').forEach((t) => t.classList.remove('active'))
+        document.querySelectorAll('.guide-panel').forEach((p) => p.classList.remove('active'))
+        btn.classList.add('active')
+        document.getElementById('guide-' + panelId).classList.add('active')
+      }
+
+      function setCanvasTheme(color, btn) {
+        document.getElementById('mini-canvas').style.backgroundColor = color
+        document.querySelectorAll('.theme-pill').forEach((p) => p.classList.remove('active'))
+        btn.classList.add('active')
+      }
+
+      // Draggable cards inside the interactive mini-canvas
+      ;(function initPlaygroundDrag() {
+        const canvas = document.getElementById('mini-canvas')
+        let activeCard = null
+        let startX = 0
+        let startY = 0
+        let origLeft = 0
+        let origTop = 0
+        let zCounter = 10
+
+        canvas.querySelectorAll('.drag-card').forEach((card) => {
+          card.addEventListener('pointerdown', (e) => {
+            activeCard = card
+            activeCard.style.zIndex = String(++zCounter)
+            startX = e.clientX
+            startY = e.clientY
+            origLeft = card.offsetLeft
+            origTop = card.offsetTop
+            card.setPointerCapture(e.pointerId)
+          })
+
+          card.addEventListener('pointermove', (e) => {
+            if (!activeCard) return
+            const dx = e.clientX - startX
+            const dy = e.clientY - startY
+            const maxLeft = Math.max(0, canvas.clientWidth - activeCard.offsetWidth)
+            const maxTop = Math.max(0, canvas.clientHeight - activeCard.offsetHeight)
+            activeCard.style.left = Math.min(maxLeft, Math.max(0, origLeft + dx)) + 'px'
+            activeCard.style.top = Math.min(maxTop, Math.max(0, origTop + dy)) + 'px'
+          })
+
+          card.addEventListener('pointerup', () => {
+            activeCard = null
+          })
+        })
+      })()
+
+      fetchDownloadCount()
+    </script>
+  </body>
 </html>

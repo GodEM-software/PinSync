@@ -7,7 +7,8 @@ import {
   dialog,
   clipboard,
   nativeImage,
-  screen
+  screen,
+  session
 } from 'electron'
 import { join, extname, normalize, basename } from 'path'
 import fs from 'fs'
@@ -734,7 +735,7 @@ function registerIpcHandlers(): void {
     ) => {
       try {
         let targetPath: string | null = null
-        const dragDir = join(app.getPath('temp'), 'visualdock-drag')
+        const dragDir = join(app.getPath('temp'), 'pinsync-drag')
         fs.mkdirSync(dragDir, { recursive: true })
         const safeBase = (payload.name || payload.type || 'item').replace(/[<>:"/\\|?*]/g, '_')
 
@@ -936,8 +937,28 @@ function registerIpcHandlers(): void {
   )
 }
 
+const gotSingleInstanceLock = app.requestSingleInstanceLock()
+if (!gotSingleInstanceLock) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+  })
+}
+
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.pinsync.app')
+  app.setName('PinSync')
+
+  // Harden permission requests from embedded <webview> pages
+  session.defaultSession.setPermissionRequestHandler((_, permission, callback) => {
+    const allowed = new Set(['clipboard-read', 'clipboard-sanitized-write', 'fullscreen'])
+    callback(allowed.has(permission))
+  })
+
   registerLocalMediaProtocol()
   registerIpcHandlers()
 
@@ -950,6 +971,17 @@ app.whenReady().then(() => {
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+})
+
+app.on('will-quit', () => {
+  try {
+    const dragDir = join(app.getPath('temp'), 'pinsync-drag')
+    if (fs.existsSync(dragDir)) {
+      fs.rmSync(dragDir, { recursive: true, force: true })
+    }
+  } catch {
+    // ignore cleanup errors
+  }
 })
 
 app.on('window-all-closed', () => {

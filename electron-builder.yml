@@ -1,5 +1,6 @@
 appId: com.pinsync.app
 productName: PinSync
+copyright: Copyright © 2026 GodEM-software
 directories:
   buildResources: build
 files:
@@ -14,15 +15,27 @@ asarUnpack:
   - server/**
 win:
   executableName: PinSync
+  icon: build/icon.ico
+  requestedExecutionLevel: asInvoker
+  verifyUpdateCodeSignature: false
   target:
     - nsis
     - portable
     - zip
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  license: LICENSE
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+  createStartMenuShortcut: true
+  runAfterFinish: true
 mac:
   target:
     - target: dmg
