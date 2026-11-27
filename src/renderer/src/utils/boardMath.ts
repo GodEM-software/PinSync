@@ -115,7 +115,7 @@ export function aabbIntersects(a: Bounds, b: Bounds): boolean {
 }
 
 /**
- * PureRef-inspired "Arrange Optimal" shelf packer:
+ * Optimal shelf packer:
  * packs items cleanly into rows around their collective center without overlap.
  */
 export function arrangeItemsOptimal(items: BoardItem[], gap = 18): BoardItem[] {

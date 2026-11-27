@@ -1,9 +1,9 @@
 # PinSync
 
-> **Freeform PureRef-style reference canvas for images, videos, webpages, audio, 30+ 3D/CAD model formats, free-draw sketches, flowcharts, and code — with built-in central server live sync and native OS drag-out.**
+> **Freeform infinite reference canvas for images, videos, webpages, audio, 30+ 3D/CAD model formats, free-draw sketches, flowcharts, and code — with built-in central server live sync and native OS drag-out.**
 
-[![Build & Release](https://github.com/YOUR_USERNAME/PinSync/actions/workflows/release.yml/badge.svg)](https://github.com/YOUR_USERNAME/PinSync/actions/workflows/release.yml)
-[![GitHub Pages](https://github.com/YOUR_USERNAME/PinSync/actions/workflows/pages.yml/badge.svg)](https://github.com/YOUR_USERNAME/PinSync/actions/workflows/pages.yml)
+[![Build & Release](https://github.com/GodEM-software/PinSync/actions/workflows/release.yml/badge.svg)](https://github.com/GodEM-software/PinSync/actions/workflows/release.yml)
+[![GitHub Pages](https://github.com/GodEM-software/PinSync/actions/workflows/pages.yml/badge.svg)](https://github.com/GodEM-software/PinSync/actions/workflows/pages.yml)
 
 ---
 
