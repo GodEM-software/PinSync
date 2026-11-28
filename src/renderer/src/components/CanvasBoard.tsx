@@ -58,6 +58,7 @@ interface CanvasBoardProps {
   onSnapshotBeforeDrag: (snapshot: BoardItem[]) => void
   onDropFilesAndData: (dataTransfer: DataTransfer, worldX: number, worldY: number) => void
   onNativeDragOut: (item: BoardItem) => void
+  onOpen3DEditor: (item: BoardItem) => void
   onOpenContextMenu: (
     screenX: number,
     screenY: number,
@@ -221,6 +222,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
   onSnapshotBeforeDrag,
   onDropFilesAndData,
   onNativeDragOut,
+  onOpen3DEditor,
   onOpenContextMenu
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -1136,6 +1138,7 @@ export const CanvasBoard: React.FC<CanvasBoardProps> = ({
             onFinishInteract={() => onInteractiveChange(null)}
             onTriggerArrowFromText={onTriggerArrowFromText}
             onStartArrowFromPort={onStartArrowFromPort}
+            onOpen3DEditor={onOpen3DEditor}
           />
         ))}
 

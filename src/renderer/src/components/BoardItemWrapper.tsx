@@ -16,6 +16,7 @@ interface BoardItemWrapperProps {
   onFinishInteract: () => void
   onTriggerArrowFromText: (item: BoardItem) => void
   onStartArrowFromPort: (worldX: number, worldY: number) => void
+  onOpen3DEditor?: (item: BoardItem) => void
 }
 
 export const BoardItemWrapper: React.FC<BoardItemWrapperProps> = ({
@@ -30,7 +31,8 @@ export const BoardItemWrapper: React.FC<BoardItemWrapperProps> = ({
   onRequestInteract,
   onFinishInteract,
   onTriggerArrowFromText,
-  onStartArrowFromPort
+  onStartArrowFromPort,
+  onOpen3DEditor
 }) => {
   const flipTransform = `scale(${item.flipX ? -1 : 1}, ${item.flipY ? -1 : 1})`
   const isTransparentFrame =
@@ -69,6 +71,7 @@ export const BoardItemWrapper: React.FC<BoardItemWrapperProps> = ({
           onRequestInteract={() => onRequestInteract(item.id)}
           onFinishInteract={onFinishInteract}
           onTriggerArrowFromText={() => onTriggerArrowFromText(item)}
+          onOpen3DEditor={onOpen3DEditor ? () => onOpen3DEditor(item) : undefined}
         />
       </div>
 

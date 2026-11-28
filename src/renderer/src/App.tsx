@@ -6,6 +6,7 @@ import type {
   BoardTheme,
   FlowchartShape,
   ItemType,
+  Model3DItem,
   ViewportState
 } from './types/board'
 import {
@@ -50,6 +51,9 @@ import { ShortcutsModal } from './components/ShortcutsModal'
 import { TextFormatPanel } from './components/TextFormatPanel'
 import { ItemSearchModal } from './components/ItemSearchModal'
 import { OnlineModal, type OnlineSessionInfo } from './components/OnlineModal'
+import { Workspace3DView } from './components/Workspace3DView'
+import { FlowchartStudioModal } from './components/FlowchartStudioModal'
+import { Model3DEditorModal } from './components/Model3DEditorModal'
 
 interface EyeDropperLike {
   open: () => Promise<{ sRGBHex: string }>
@@ -85,6 +89,9 @@ export function App(): React.JSX.Element {
   const [showSearch, setShowSearch] = useState(false)
   const [showOnlineModal, setShowOnlineModal] = useState(false)
   const [onlineSession, setOnlineSession] = useState<OnlineSessionInfo | null>(null)
+  const [workspace3DMode, setWorkspace3DMode] = useState(false)
+  const [showFlowStudio, setShowFlowStudio] = useState(false)
+  const [editor3DTarget, setEditor3DTarget] = useState<Model3DItem | 'new' | null>(null)
   const [shortcutConfig, setShortcutConfig] = useState<ShortcutConfig>(() => loadShortcutConfig())
   const [arrowToolActive, setArrowToolActive] = useState(false)
   const [arrowDraft, setArrowDraft] = useState<ArrowDraft | null>(null)
@@ -1218,6 +1225,7 @@ export function App(): React.JSX.Element {
           interactiveActive={Boolean(interactiveItemId)}
           arrowToolActive={arrowToolActive || Boolean(arrowDraft)}
           drawToolActive={drawToolActive}
+          workspace3DMode={workspace3DMode}
           onlineActive={Boolean(onlineSession)}
           windowOpacity={windowOpacity}
           theme={theme}
@@ -1247,6 +1255,14 @@ export function App(): React.JSX.Element {
           onToggleZenMode={() => setZenMode(true)}
           onShowShortcuts={() => setShowShortcuts(true)}
           onOpenOnline={() => setShowOnlineModal(true)}
+          onOpenFlowStudio={() => setShowFlowStudio(true)}
+          onOpen3DEditor={() => {
+            const sel3d = items.find(
+              (it): it is Model3DItem => selectedIds.includes(it.id) && it.type === 'model3d'
+            )
+            setEditor3DTarget(sel3d || 'new')
+          }}
+          onToggle3DWorkspace={() => setWorkspace3DMode((v) => !v)}
           onExitInteractive={() => setInteractiveItemId(null)}
         />
       )}
@@ -1297,6 +1313,9 @@ export function App(): React.JSX.Element {
         onSnapshotBeforeDrag={snapshotBeforeDrag}
         onDropFilesAndData={(dt, wx, wy) => void handleDropFilesAndData(dt, wx, wy)}
         onNativeDragOut={handleNativeDragOut}
+        onOpen3DEditor={(item) => {
+          if (item.type === 'model3d') setEditor3DTarget(item)
+        }}
         onOpenContextMenu={(x, y, worldX, worldY, targetItemId) =>
           setContextMenu({ x, y, worldX, worldY, targetItemId })
         }
@@ -1408,6 +1427,92 @@ export function App(): React.JSX.Element {
           config={shortcutConfig}
           onChange={handleUpdateShortcutConfig}
           onClose={() => setShowShortcuts(false)}
+        />
+      )}
+
+      {workspace3DMode && (
+        <Workspace3DView
+          items={items}
+          theme={theme}
+          onExit3D={() => setWorkspace3DMode(false)}
+          onSelectItem={(id) => setSelectedIds([id])}
+          onOpen3DEditor={(item) => {
+            if (item.type === 'model3d') {
+              setWorkspace3DMode(false)
+              setEditor3DTarget(item)
+            }
+          }}
+        />
+      )}
+
+      {showFlowStudio && (
+        <FlowchartStudioModal
+          onClose={() => setShowFlowStudio(false)}
+          onPinGraphToBoard={(dataUrl, w, h, title) => {
+            const center = getViewportCenterWorld()
+            appendItems([
+              createImageItemFromDataUrl(dataUrl, center.x, center.y, getNextZIndex(), w, h, title)
+            ])
+            showToast('Pinned React Flow graph to board')
+          }}
+        />
+      )}
+
+      {editor3DTarget !== null && (
+        <Model3DEditorModal
+          item={editor3DTarget === 'new' ? null : editor3DTarget}
+          onClose={() => setEditor3DTarget(null)}
+          onSaveGlbToBoard={(dataUrl, name, existingId) => {
+            if (existingId) {
+              commit((prev) =>
+                prev.map((it) =>
+                  it.id === existingId && it.type === 'model3d'
+                    ? { ...it, src: dataUrl, format: 'glb', filePath: undefined, name }
+                    : it
+                )
+              )
+              showToast('Updated 3D model on board')
+            } else {
+              const center = getViewportCenterWorld()
+              const newItem: Model3DItem = {
+                id: makeId(),
+                type: 'model3d',
+                name,
+                src: dataUrl,
+                format: 'glb',
+                x: center.x,
+                y: center.y,
+                width: 360,
+                height: 320,
+                rotation: 0,
+                zIndex: getNextZIndex(),
+                opacity: 1,
+                locked: false,
+                flipX: false,
+                flipY: false,
+                wireframe: false,
+                showGrid: true,
+                autoRotate: false
+              }
+              appendItems([newItem])
+              showToast('Added 3D model to board')
+            }
+          }}
+          onPrintSnapshotToBoard={(dataUrl, name) => {
+            const center = getViewportCenterWorld()
+            appendItems([
+              createImageItemFromDataUrl(
+                dataUrl,
+                center.x,
+                center.y,
+                getNextZIndex(),
+                420,
+                320,
+                name
+              )
+            ])
+            showToast('Printed 3D snapshot to board')
+          }}
         />
       )}
 

@@ -310,6 +310,115 @@ body,
   border-bottom: none;
 }
 
+/* 3D Spatial Workspace Mode */
+.workspace-3d-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  background: #0d1018;
+}
+
+.workspace-3d-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.workspace-3d-hud {
+  position: fixed;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.hud-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(18, 22, 32, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  color: #e2e8f0;
+  font-size: 12px;
+}
+
+.hud-pill input[type='range'] {
+  width: 84px;
+  accent-color: #38bdf8;
+}
+
+.hud-sep {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.workspace-3d-selection {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: rgba(18, 22, 32, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* React Flow Studio */
+.rf-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #171a23;
+  border-bottom: 1px solid #2b3142;
+}
+
+/* Three.js 3D Editor */
+.editor3d-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: #171a23;
+  border-left: 1px solid #2b3142;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.editor3d-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.editor3d-hint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(15, 19, 28, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 11.5px;
+  pointer-events: none;
+}
+
 .no-drag {
   -webkit-app-region: no-drag;
 }

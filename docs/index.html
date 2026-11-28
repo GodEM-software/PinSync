@@ -910,6 +910,7 @@
           <a href="#features">Features</a>
           <a href="#guide">User Guide</a>
           <a href="#shortcuts">Shortcuts</a>
+          <a href="#vision">Next Vision</a>
         </nav>
 
         <div class="nav-right">
@@ -1050,7 +1051,15 @@
             <div class="dock-footnote">
               <span id="dl-remaining">50 free spots remaining</span>
               <span
-                >v1.0.0 · MIT License · Built by
+                ><span id="release-tag">v1.0.2</span> ·
+                <a
+                  href="https://github.com/GodEM-software/PinSync/releases/latest"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style="color: var(--text-secondary); text-decoration: underline"
+                  >All Builds (.dmg, .deb, .pacman)</a
+                >
+                · Built by
                 <a
                   href="https://sabarees.netlify.app/"
                   target="_blank"
@@ -1549,6 +1558,168 @@ const sync = await joinBoard({
         </div>
       </section>
 
+      <!-- Next Vision / Roadmap -->
+      <section id="vision">
+        <div class="container">
+          <div class="section-header">
+            <span class="eyebrow">Next Vision · v2.0 Roadmap</span>
+            <h2>One Free Reference Canvas That Does Everything</h2>
+            <p>
+              PinSync is evolving from a 2D PureRef-style board into a full spatial 3D &amp;
+              node-graph studio — completely free for everyone.
+            </p>
+          </div>
+
+          <div class="bento">
+            <div class="bento-card wide">
+              <div>
+                <div
+                  class="bento-icon"
+                  style="
+                    color: var(--accent-indigo);
+                    border-color: rgba(129, 140, 248, 0.28);
+                    background: rgba(129, 140, 248, 0.12);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" />
+                    <path d="M12 12l8-4.5" />
+                    <path d="M12 12v9" />
+                    <path d="M12 12L4 7.5" />
+                  </svg>
+                </div>
+                <h3>2D → 3D Workspace Mode</h3>
+                <p>
+                  Switch your entire 2D reference workspace into an interactive 3D spatial mode with
+                  one click — arrange images, notes, and models in true 3D depth.
+                </p>
+              </div>
+              <div class="micro-ui">
+                Mode: 2D Canvas ⇄ 3D Spatial Workspace · Orbit, Depth Layers &amp; Camera Bookmarks
+              </div>
+            </div>
+
+            <div class="bento-card wide">
+              <div>
+                <div
+                  class="bento-icon"
+                  style="
+                    color: var(--emerald);
+                    border-color: rgba(52, 211, 153, 0.28);
+                    background: rgba(52, 211, 153, 0.12);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                    <path d="M10 6.5h4a2 2 0 0 1 2 2V14" />
+                  </svg>
+                </div>
+                <h3>ReactFlow + Grafloria Flowcharts</h3>
+                <p>
+                  Next-gen node-based flowcharts powered by <strong>ReactFlow</strong> &amp;
+                  <strong>Grafloria</strong> — custom nodes, smart edge routing, and freeform system
+                  diagrams built right into your board.
+                </p>
+              </div>
+              <div class="micro-ui">
+                Engine: ReactFlow + Grafloria · Custom Nodes, Handles &amp; Live Graph Sync (Free)
+              </div>
+            </div>
+
+            <div class="bento-card wide">
+              <div>
+                <div class="bento-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                    />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </div>
+                <h3>Three.js 3D Model Editor (Click, Text, Color &amp; Pin)</h3>
+                <p>
+                  Import or fetch 3D models, click directly on any mesh to open the built-in
+                  <strong>Three.js Editor</strong>, paint material colors, attach 3D text labels,
+                  and drop surface pins for feedback &amp; printing.
+                </p>
+              </div>
+              <div class="micro-ui">
+                <div class="format-chips">
+                  <span class="format-chip">Click-to-Edit Mesh</span>
+                  <span class="format-chip">3D Text Labels</span>
+                  <span class="format-chip">Material Colors</span>
+                  <span class="format-chip">Surface Pins</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bento-card wide">
+              <div>
+                <div
+                  class="bento-icon"
+                  style="
+                    color: var(--amber);
+                    border-color: rgba(251, 191, 36, 0.28);
+                    background: rgba(251, 191, 36, 0.12);
+                  "
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                    />
+                  </svg>
+                </div>
+                <h3>Free All-in-One Reference Canvas</h3>
+                <p>
+                  No paywalls or fragmented tools — images, video, audio, 3D/CAD editing, ReactFlow
+                  diagrams, code, and live team sync unified in one free workspace.
+                </p>
+              </div>
+              <div class="micro-ui">
+                PinSync Promise: Free Reference Canvas That Does Everything · Open Source (MIT)
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Creator -->
       <section id="creator">
         <div class="container">
@@ -1627,11 +1798,35 @@ const sync = await joinBoard({
       const COUNTER_KEY = 'free50'
       const LOCAL_KEY = 'pinsync_free50_downloads_v1'
 
-      // Update these URLs to your published GitHub Release or direct installer links
+      // Mapped to GodEM-software/PinSync GitHub Releases (auto-refreshed from API)
+      const GITHUB_REPO = 'GodEM-software/PinSync'
       const DOWNLOAD_URLS = {
-        'win-setup': 'https://github.com/YOUR_USERNAME/PinSync/releases/latest',
-        'win-portable': 'https://github.com/YOUR_USERNAME/PinSync/releases/latest',
-        linux: 'https://github.com/YOUR_USERNAME/PinSync/releases/latest'
+        'win-setup': `https://github.com/${GITHUB_REPO}/releases/latest/download/pinsync-1.0.0-setup.exe`,
+        'win-portable': `https://github.com/${GITHUB_REPO}/releases/latest/download/PinSync.1.0.0.exe`,
+        linux: `https://github.com/${GITHUB_REPO}/releases/latest/download/pinsync-1.0.0.AppImage`
+      }
+
+      async function syncLatestReleaseUrls() {
+        try {
+          const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
+          if (!res.ok) return
+          const release = await res.json()
+          if (release.tag_name) {
+            const tagEl = document.getElementById('release-tag')
+            if (tagEl) tagEl.textContent = release.tag_name
+          }
+          const assets = Array.isArray(release.assets) ? release.assets : []
+          const setupAsset = assets.find((a) => /setup\.exe$/i.test(a.name))
+          const portableAsset = assets.find(
+            (a) => /\.exe$/i.test(a.name) && !/setup\.exe$/i.test(a.name)
+          )
+          const appImageAsset = assets.find((a) => /\.AppImage$/i.test(a.name))
+          if (setupAsset) DOWNLOAD_URLS['win-setup'] = setupAsset.browser_download_url
+          if (portableAsset) DOWNLOAD_URLS['win-portable'] = portableAsset.browser_download_url
+          if (appImageAsset) DOWNLOAD_URLS['linux'] = appImageAsset.browser_download_url
+        } catch {
+          // Keep default /releases/latest/download/* URLs
+        }
       }
 
       function renderCounter(count, mode) {
@@ -1783,6 +1978,7 @@ const sync = await joinBoard({
       })()
 
       fetchDownloadCount()
+      syncLatestReleaseUrls()
     </script>
   </body>
 </html>

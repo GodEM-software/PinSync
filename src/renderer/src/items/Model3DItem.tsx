@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -31,7 +32,7 @@ import { KSPLATLoader } from 'three/examples/jsm/loaders/KSPLATLoader.js'
 import { SPZLoader } from 'three/examples/jsm/loaders/SPZLoader.js'
 import { Rhino3dmLoader } from 'three/examples/jsm/loaders/3DMLoader.js'
 import { unzipSync } from 'three/examples/jsm/libs/fflate.module.js'
-import { Box, Grid, MousePointerClick, RotateCcw, RotateCw } from 'lucide-react'
+import { Box, Grid, MousePointerClick, Pencil, RotateCcw, RotateCw } from 'lucide-react'
 import type { ItemRendererProps, Model3DFormat, Model3DItem } from '../types/board'
 
 interface OcctResult {
@@ -238,7 +239,7 @@ async function loadFromZip(
   return { obj, revoke }
 }
 
-async function loadModelObject(
+export async function loadModelObject(
   src: string,
   format: Model3DFormat,
   renderer: THREE.WebGLRenderer,
@@ -385,7 +386,7 @@ async function loadModelObject(
   }
 }
 
-function centerAndScaleObject(obj: THREE.Object3D): void {
+export function centerAndScaleObject(obj: THREE.Object3D): void {
   const box = new THREE.Box3().setFromObject(obj)
   if (box.isEmpty()) return
   const size = new THREE.Vector3()
@@ -421,7 +422,8 @@ export const Model3DItemView: React.FC<ItemRendererProps<Model3DItem>> = ({
   item,
   isInteractive,
   onUpdate,
-  onRequestInteract
+  onRequestInteract,
+  onOpen3DEditor
 }) => {
   const mountRef = useRef<HTMLDivElement | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -622,6 +624,16 @@ export const Model3DItemView: React.FC<ItemRendererProps<Model3DItem>> = ({
         <button className="media-btn" title="Reset Camera" onClick={resetCamera}>
           <RotateCcw size={13} />
         </button>
+
+        {onOpen3DEditor && (
+          <button
+            className="media-btn primary"
+            title="Open in Three.js 3D Editor (Color, Text & Print)"
+            onClick={onOpen3DEditor}
+          >
+            <Pencil size={12} />
+          </button>
+        )}
       </div>
     </div>
   )

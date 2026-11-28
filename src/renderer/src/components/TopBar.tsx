@@ -12,6 +12,7 @@ import {
   Grid,
   Image as ImageIcon,
   Keyboard,
+  Layers,
   LayoutGrid,
   Lock,
   Maximize2,
@@ -29,6 +30,7 @@ import {
   Type,
   Unlock,
   Video,
+  Workflow,
   X
 } from 'lucide-react'
 import type { BoardTheme, FlowchartShape, ItemType } from '../types/board'
@@ -43,6 +45,7 @@ interface TopBarProps {
   interactiveActive: boolean
   arrowToolActive: boolean
   drawToolActive: boolean
+  workspace3DMode: boolean
   onlineActive: boolean
   windowOpacity: number
   theme: BoardTheme
@@ -70,6 +73,9 @@ interface TopBarProps {
   onToggleZenMode: () => void
   onShowShortcuts: () => void
   onOpenOnline: () => void
+  onOpenFlowStudio: () => void
+  onOpen3DEditor: () => void
+  onToggle3DWorkspace: () => void
   onExitInteractive: () => void
 }
 
@@ -91,6 +97,7 @@ export const TopBar: React.FC<TopBarProps> = ({
   interactiveActive,
   arrowToolActive,
   drawToolActive,
+  workspace3DMode,
   onlineActive,
   windowOpacity,
   theme,
@@ -116,6 +123,9 @@ export const TopBar: React.FC<TopBarProps> = ({
   onToggleZenMode,
   onShowShortcuts,
   onOpenOnline,
+  onOpenFlowStudio,
+  onOpen3DEditor,
+  onToggle3DWorkspace,
   onExitInteractive
 }) => {
   const [showAppearance, setShowAppearance] = useState(false)
@@ -287,6 +297,39 @@ export const TopBar: React.FC<TopBarProps> = ({
             <ArrowUpRight size={16} />
           </span>
           <span className="dock-label">Arrow</span>
+        </button>
+
+        <button
+          className="dock-item"
+          onClick={onOpenFlowStudio}
+          title="React Flow Studio (Interactive Node Flowchart)"
+        >
+          <span className="dock-icon">
+            <Workflow size={16} />
+          </span>
+          <span className="dock-label">Graph</span>
+        </button>
+
+        <button
+          className="dock-item"
+          onClick={onOpen3DEditor}
+          title="Three.js 3D Editor (Create, Color, Print Text)"
+        >
+          <span className="dock-icon">
+            <Box size={16} />
+          </span>
+          <span className="dock-label">3D Edit</span>
+        </button>
+
+        <button
+          className={`dock-item ${workspace3DMode ? 'active' : ''}`}
+          onClick={onToggle3DWorkspace}
+          title="Convert 2D Workspace to 3D Spatial Mode"
+        >
+          <span className="dock-icon">
+            <Layers size={16} />
+          </span>
+          <span className="dock-label">3D Space</span>
         </button>
 
         <button

@@ -232,4 +232,5 @@ export interface ItemRendererProps<T extends BoardItem = BoardItem> {
   onRequestInteract: () => void
   onFinishInteract?: () => void
   onTriggerArrowFromText?: () => void
+  onOpen3DEditor?: () => void
 }
