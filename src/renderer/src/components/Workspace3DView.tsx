@@ -22,10 +22,41 @@ const THEME_BG: Record<BoardTheme, number> = {
   blueprint: 0x0e1a2d
 }
 
+function wrapCanvasText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  maxLines: number
+): string[] {
+  const paragraphs = text.split(/\r?\n/)
+  const out: string[] = []
+  for (const para of paragraphs) {
+    const words = para.split(/\s+/).filter(Boolean)
+    if (words.length === 0) {
+      out.push('')
+      continue
+    }
+    let line = words[0]
+    for (let i = 1; i < words.length; i++) {
+      const test = `${line} ${words[i]}`
+      if (ctx.measureText(test).width <= maxWidth) {
+        line = test
+      } else {
+        out.push(line)
+        line = words[i]
+        if (out.length >= maxLines) break
+      }
+    }
+    if (out.length < maxLines) out.push(line)
+    if (out.length >= maxLines) break
+  }
+  return out.slice(0, maxLines)
+}
+
 function makeCardTexture(item: BoardItem): THREE.CanvasTexture {
   const canvas = document.createElement('canvas')
-  canvas.width = 512
-  canvas.height = Math.max(160, Math.round((512 * item.height) / Math.max(1, item.width)))
+  canvas.width = 640
+  canvas.height = Math.max(180, Math.round((640 * item.height) / Math.max(1, item.width)))
   const ctx = canvas.getContext('2d')!
   const w = canvas.width
   const h = canvas.height
@@ -86,15 +117,17 @@ function makeCardTexture(item: BoardItem): THREE.CanvasTexture {
   let label = item.name
   if (item.type === 'text') label = item.text || 'Text'
   else if (item.type === 'flowchart') label = item.label
-  else if (item.type === 'code') label = `${item.language.toUpperCase()} · ${item.name}`
+  else if (item.type === 'code')
+    label = `${item.language.toUpperCase()} · ${item.name}\n${item.code}`
   else if (item.type === 'swatch') label = item.hex
 
-  const lines = label.split('\n').slice(0, 4)
-  ctx.font = '600 28px Inter, Segoe UI, sans-serif'
-  const lineH = 36
+  ctx.font = '600 24px Inter, Segoe UI, sans-serif'
+  const maxLines = Math.max(2, Math.floor((h - 40) / 32))
+  const lines = wrapCanvasText(ctx, label, w - 48, maxLines)
+  const lineH = 30
   const startY = h / 2 - ((lines.length - 1) * lineH) / 2
   lines.forEach((line, i) => {
-    ctx.fillText(line.slice(0, 34), w / 2, startY + i * lineH, w - 36)
+    ctx.fillText(line, w / 2, startY + i * lineH, w - 44)
   })
 
   const tex = new THREE.CanvasTexture(canvas)
@@ -113,6 +146,10 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const controlsRef = useRef<OrbitControls | null>(null)
   const meshMapRef = useRef<Map<string, { group: THREE.Group; baseZ: number }>>(new Map())
+  const homeViewRef = useRef<{ pos: THREE.Vector3; target: THREE.Vector3 }>({
+    pos: new THREE.Vector3(0, 4, 16),
+    target: new THREE.Vector3(0, 1.5, 0)
+  })
   const renderOnceRef = useRef<() => void>(() => {})
   const onSelectRef = useRef(onSelectItem)
 
@@ -189,14 +226,24 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
 
     const avgX = items.length > 0 ? items.reduce((s, it) => s + it.x, 0) / items.length : 0
     const avgY = items.length > 0 ? items.reduce((s, it) => s + it.y, 0) / items.length : 0
-    const scale = 0.016
+    const scale = 0.014
+
+    let minWorldY = -2
+    let minWorldX = -6
+    let maxWorldX = 6
+    let maxWorldY = 4
 
     items.forEach((item, idx) => {
       const pw = Math.max(0.6, item.width * scale)
       const ph = Math.max(0.6, item.height * scale)
       const wx = (item.x - avgX) * scale
-      const wy = -(item.y - avgY) * scale + 1.8
-      const baseZ = (item.zIndex - items.length / 2) * 0.28 + (idx % 3) * 0.02
+      const wy = -(item.y - avgY) * scale
+      const baseZ = (item.zIndex - items.length / 2) * 0.25 + (idx % 3) * 0.02
+
+      minWorldY = Math.min(minWorldY, wy - ph / 2)
+      maxWorldY = Math.max(maxWorldY, wy + ph / 2)
+      minWorldX = Math.min(minWorldX, wx - pw / 2)
+      maxWorldX = Math.max(maxWorldX, wx + pw / 2)
 
       const group = new THREE.Group()
       group.position.set(wx, wy, baseZ * depthSpread)
@@ -279,6 +326,23 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
       scene.add(group)
       meshMapRef.current.set(item.id, { group, baseZ })
     })
+
+    // Place grid floor cleanly below the lowest card so it never slices through items
+    const gridSize = Math.max(60, Math.ceil(Math.max(maxWorldX - minWorldX, 30) * 1.8))
+    grid.position.y = minWorldY - 1.4
+    grid.scale.setScalar(gridSize / 50)
+
+    // Auto-fit camera to frame the entire 3D board cleanly
+    const cx = (minWorldX + maxWorldX) / 2
+    const cy = (minWorldY + maxWorldY) / 2
+    const span = Math.max(maxWorldX - minWorldX, maxWorldY - minWorldY, 10)
+    const camDist = span * 1.1
+    const homePos = new THREE.Vector3(cx, cy + span * 0.12, camDist)
+    const homeTarget = new THREE.Vector3(cx, cy, 0)
+    homeViewRef.current = { pos: homePos, target: homeTarget }
+    camera.position.copy(homePos)
+    controls.target.copy(homeTarget)
+    controls.update()
 
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2()
@@ -365,8 +429,8 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
 
   const resetCamera = (): void => {
     if (!cameraRef.current || !controlsRef.current) return
-    cameraRef.current.position.set(0, 4, 16)
-    controlsRef.current.target.set(0, 1.5, 0)
+    cameraRef.current.position.copy(homeViewRef.current.pos)
+    controlsRef.current.target.copy(homeViewRef.current.target)
     controlsRef.current.update()
     requestRender()
   }
