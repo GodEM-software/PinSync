@@ -201,7 +201,7 @@ export type BoardItem =
   | SwatchItem
   | DrawingItem
 
-export type BoardTheme = 'charcoal' | 'obsidian' | 'neutral' | 'slate' | 'blueprint'
+export type BoardTheme = 'light' | 'charcoal' | 'obsidian' | 'neutral' | 'slate' | 'blueprint'
 
 export interface ViewportState {
   panX: number

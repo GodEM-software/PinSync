@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Box, Layers, Maximize2, RotateCcw, X } from 'lucide-react'
@@ -14,6 +14,7 @@ interface Workspace3DViewProps {
 }
 
 const THEME_BG: Record<BoardTheme, number> = {
+  light: 0xeef2f7,
   charcoal: 0x14161c,
   obsidian: 0x090a0e,
   neutral: 0x242730,
@@ -26,7 +27,6 @@ function makeCardTexture(item: BoardItem): THREE.CanvasTexture {
   canvas.width = 512
   canvas.height = Math.max(160, Math.round((512 * item.height) / Math.max(1, item.width)))
   const ctx = canvas.getContext('2d')!
-
   const w = canvas.width
   const h = canvas.height
 
@@ -58,23 +58,28 @@ function makeCardTexture(item: BoardItem): THREE.CanvasTexture {
     return tex
   }
 
-  // Dark glassmorphic card background
   ctx.fillStyle =
     item.type === 'swatch'
       ? item.hex
       : item.type === 'flowchart'
         ? item.fillColor
         : item.type === 'text'
-          ? '#1e222d'
-          : '#161922'
+          ? '#ffffff'
+          : '#f8fafc'
   ctx.fillRect(0, 0, w, h)
 
-  ctx.strokeStyle = item.type === 'flowchart' ? item.borderColor : 'rgba(148, 163, 184, 0.35)'
+  ctx.strokeStyle = item.type === 'flowchart' ? item.borderColor : '#cbd5e1'
   ctx.lineWidth = 4
   ctx.strokeRect(2, 2, w - 4, h - 4)
 
   ctx.fillStyle =
-    item.type === 'text' ? item.color : item.type === 'flowchart' ? item.textColor : '#e2e8f0'
+    item.type === 'text'
+      ? item.color === '#f1f5f9'
+        ? '#0f172a'
+        : item.color
+      : item.type === 'flowchart'
+        ? item.textColor
+        : '#0f172a'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
 
@@ -83,7 +88,6 @@ function makeCardTexture(item: BoardItem): THREE.CanvasTexture {
   else if (item.type === 'flowchart') label = item.label
   else if (item.type === 'code') label = `${item.language.toUpperCase()} · ${item.name}`
   else if (item.type === 'swatch') label = item.hex
-  else if (item.type === 'model3d') label = `3D · ${item.format.toUpperCase()}\n${item.name}`
 
   const lines = label.split('\n').slice(0, 4)
   ctx.font = '600 28px Inter, Segoe UI, sans-serif'
@@ -108,54 +112,81 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
   const mountRef = useRef<HTMLDivElement | null>(null)
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const controlsRef = useRef<OrbitControls | null>(null)
-  const meshMapRef = useRef<Map<string, THREE.Object3D>>(new Map())
+  const meshMapRef = useRef<Map<string, { group: THREE.Group; baseZ: number }>>(new Map())
+  const renderOnceRef = useRef<() => void>(() => {})
+  const onSelectRef = useRef(onSelectItem)
+
+  useEffect(() => {
+    onSelectRef.current = onSelectItem
+  }, [onSelectItem])
 
   const [depthSpread, setDepthSpread] = useState(1)
   const [focusedItem, setFocusedItem] = useState<BoardItem | null>(null)
+
+  const requestRender = useCallback(() => {
+    renderOnceRef.current()
+  }, [])
 
   useEffect(() => {
     const container = mountRef.current
     if (!container) return
 
+    const isLight = theme === 'light'
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(THEME_BG[theme] || 0x14161c)
-    scene.fog = new THREE.FogExp2(THEME_BG[theme] || 0x14161c, 0.015)
+    scene.background = new THREE.Color(THEME_BG[theme] ?? 0xeef2f7)
 
     const w = container.clientWidth || window.innerWidth
     const h = container.clientHeight || window.innerHeight
-    const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 400)
-    camera.position.set(0, 5, 18)
+    const camera = new THREE.PerspectiveCamera(48, w / h, 0.1, 400)
+    camera.position.set(0, 4, 16)
     cameraRef.current = camera
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance'
+    })
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
     renderer.setSize(w, h)
     renderer.outputColorSpace = THREE.SRGBColorSpace
     container.appendChild(renderer.domElement)
 
     const controls = new OrbitControls(camera, renderer.domElement)
-    controls.enableDamping = true
-    controls.dampingFactor = 0.08
-    controls.target.set(0, 2, 0)
+    controls.enableDamping = false
+    controls.target.set(0, 1.5, 0)
     controlsRef.current = controls
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9))
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.1)
+    let rafPending = false
+    const scheduleRender = (): void => {
+      if (rafPending) return
+      rafPending = true
+      requestAnimationFrame(() => {
+        rafPending = false
+        renderer.render(scene, camera)
+      })
+    }
+    renderOnceRef.current = scheduleRender
+    controls.addEventListener('change', scheduleRender)
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1.0))
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9)
     dirLight.position.set(8, 16, 12)
     scene.add(dirLight)
 
-    const grid = new THREE.GridHelper(60, 60, 0x3b82f6, 0x262d3d)
-    grid.position.y = -2
+    const grid = new THREE.GridHelper(
+      50,
+      50,
+      isLight ? 0x94a3b8 : 0x3b82f6,
+      isLight ? 0xdbe2ea : 0x262d3d
+    )
+    grid.position.y = -2.2
     scene.add(grid)
 
-    const texLoader = new THREE.TextureLoader()
     const createdTextures: THREE.Texture[] = []
     const createdGeos: THREE.BufferGeometry[] = []
     const createdMats: THREE.Material[] = []
     const pickables: THREE.Object3D[] = []
     meshMapRef.current.clear()
 
-    // Compute board center so items are centered around origin
     const avgX = items.length > 0 ? items.reduce((s, it) => s + it.x, 0) / items.length : 0
     const avgY = items.length > 0 ? items.reduce((s, it) => s + it.y, 0) / items.length : 0
     const scale = 0.016
@@ -164,11 +195,11 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
       const pw = Math.max(0.6, item.width * scale)
       const ph = Math.max(0.6, item.height * scale)
       const wx = (item.x - avgX) * scale
-      const wy = -(item.y - avgY) * scale + 2.2
-      const wz = (item.zIndex - items.length / 2) * 0.25 * depthSpread + (idx % 3) * 0.02
+      const wy = -(item.y - avgY) * scale + 1.8
+      const baseZ = (item.zIndex - items.length / 2) * 0.28 + (idx % 3) * 0.02
 
       const group = new THREE.Group()
-      group.position.set(wx, wy, wz)
+      group.position.set(wx, wy, baseZ * depthSpread)
       group.rotation.z = THREE.MathUtils.degToRad(-item.rotation)
       group.userData.itemId = item.id
 
@@ -187,9 +218,10 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
               }
             })
             modelGroup.add(obj)
+            scheduleRender()
           })
           .catch(() => {
-            const geo = new THREE.BoxGeometry(pw * 0.65, ph * 0.65, Math.min(pw, ph) * 0.65)
+            const geo = new THREE.BoxGeometry(pw * 0.6, ph * 0.6, Math.min(pw, ph) * 0.6)
             const mat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.4 })
             createdGeos.push(geo)
             createdMats.push(mat)
@@ -197,31 +229,46 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
             cube.userData.itemId = item.id
             modelGroup.add(cube)
             pickables.push(cube)
+            scheduleRender()
           })
+      } else if (item.type === 'image') {
+        const geo = new THREE.PlaneGeometry(pw, ph)
+        createdGeos.push(geo)
+        const mat = new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: item.opacity,
+          side: THREE.DoubleSide
+        })
+        createdMats.push(mat)
+        const plane = new THREE.Mesh(geo, mat)
+        plane.userData.itemId = item.id
+        group.add(plane)
+        pickables.push(plane)
+
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+        img.onload = () => {
+          const tex = new THREE.Texture(img)
+          tex.colorSpace = THREE.SRGBColorSpace
+          tex.needsUpdate = true
+          createdTextures.push(tex)
+          mat.map = tex
+          mat.needsUpdate = true
+          scheduleRender()
+        }
+        img.src = item.src
       } else {
         const geo = new THREE.PlaneGeometry(pw, ph)
         createdGeos.push(geo)
-        let mat: THREE.MeshBasicMaterial
-        if (item.type === 'image') {
-          const tex = texLoader.load(item.src)
-          tex.colorSpace = THREE.SRGBColorSpace
-          createdTextures.push(tex)
-          mat = new THREE.MeshBasicMaterial({
-            map: tex,
-            transparent: true,
-            opacity: item.opacity,
-            side: THREE.DoubleSide
-          })
-        } else {
-          const tex = makeCardTexture(item)
-          createdTextures.push(tex)
-          mat = new THREE.MeshBasicMaterial({
-            map: tex,
-            transparent: true,
-            opacity: item.opacity,
-            side: THREE.DoubleSide
-          })
-        }
+        const tex = makeCardTexture(item)
+        createdTextures.push(tex)
+        const mat = new THREE.MeshBasicMaterial({
+          map: tex,
+          transparent: true,
+          opacity: item.opacity,
+          side: THREE.DoubleSide
+        })
         createdMats.push(mat)
         const plane = new THREE.Mesh(geo, mat)
         plane.userData.itemId = item.id
@@ -230,7 +277,7 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
       }
 
       scene.add(group)
-      meshMapRef.current.set(item.id, group)
+      meshMapRef.current.set(item.id, { group, baseZ })
     })
 
     const raycaster = new THREE.Raycaster()
@@ -255,7 +302,7 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
         if (itemId) {
           const found = items.find((it) => it.id === itemId) || null
           setFocusedItem(found)
-          onSelectItem(itemId)
+          onSelectRef.current(itemId)
         }
       } else {
         setFocusedItem(null)
@@ -271,20 +318,15 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
       camera.aspect = nw / nh
       camera.updateProjectionMatrix()
       renderer.setSize(nw, nh)
+      scheduleRender()
     })
     ro.observe(container)
 
-    let rafId = 0
-    const animate = (): void => {
-      rafId = requestAnimationFrame(animate)
-      controls.update()
-      renderer.render(scene, camera)
-    }
-    animate()
+    scheduleRender()
 
     return () => {
-      cancelAnimationFrame(rafId)
       ro.disconnect()
+      controls.removeEventListener('change', scheduleRender)
       renderer.domElement.removeEventListener('pointerdown', onPointerDown)
       renderer.domElement.removeEventListener('pointerup', onPointerUp)
       controls.dispose()
@@ -296,22 +338,37 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
         container.removeChild(renderer.domElement)
       }
     }
-  }, [depthSpread, items, onSelectItem, theme])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, theme])
+
+  // Update Z depth smoothly without rebuilding the WebGL scene
+  useEffect(() => {
+    meshMapRef.current.forEach(({ group, baseZ }) => {
+      group.position.z = baseZ * depthSpread
+    })
+    requestRender()
+  }, [depthSpread, requestRender])
 
   const focusOnSelected = (): void => {
     if (!focusedItem || !cameraRef.current || !controlsRef.current) return
-    const obj = meshMapRef.current.get(focusedItem.id)
-    if (!obj) return
-    controlsRef.current.target.copy(obj.position)
-    cameraRef.current.position.set(obj.position.x, obj.position.y + 0.8, obj.position.z + 6)
+    const entry = meshMapRef.current.get(focusedItem.id)
+    if (!entry) return
+    controlsRef.current.target.copy(entry.group.position)
+    cameraRef.current.position.set(
+      entry.group.position.x,
+      entry.group.position.y + 0.6,
+      entry.group.position.z + 6
+    )
     controlsRef.current.update()
+    requestRender()
   }
 
   const resetCamera = (): void => {
     if (!cameraRef.current || !controlsRef.current) return
-    cameraRef.current.position.set(0, 5, 18)
-    controlsRef.current.target.set(0, 2, 0)
+    cameraRef.current.position.set(0, 4, 16)
+    controlsRef.current.target.set(0, 1.5, 0)
     controlsRef.current.update()
+    requestRender()
   }
 
   return (
@@ -320,7 +377,7 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
 
       <div className="workspace-3d-hud">
         <div className="hud-pill">
-          <Box size={14} color="#60a5fa" />
+          <Box size={14} color="#2563eb" />
           <strong>3D Spatial Mode</strong>
           <span className="hud-sep">·</span>
           <span>Drag to Orbit · Right-Drag to Pan · Scroll to Zoom</span>
@@ -350,7 +407,7 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
         <div className="workspace-3d-selection">
           <div>
             <div style={{ fontWeight: 600, fontSize: 13 }}>{focusedItem.name}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>Type: {focusedItem.type}</div>
+            <div style={{ fontSize: 11, color: '#64748b' }}>Type: {focusedItem.type}</div>
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             <button className="btn-secondary small" onClick={focusOnSelected}>

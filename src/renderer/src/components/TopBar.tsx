@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   ArrowUpRight,
   Box,
@@ -80,6 +80,7 @@ interface TopBarProps {
 }
 
 const THEMES: { id: BoardTheme; label: string; color: string }[] = [
+  { id: 'light', label: 'Light', color: '#f1f5f9' },
   { id: 'charcoal', label: 'Charcoal', color: '#1a1c24' },
   { id: 'obsidian', label: 'Obsidian', color: '#0c0d12' },
   { id: 'neutral', label: 'Neutral', color: '#2b2e37' },
@@ -130,6 +131,18 @@ export const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const [showAppearance, setShowAppearance] = useState(false)
   const [showFlowShapes, setShowFlowShapes] = useState(false)
+  const dockRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    const onDocDown = (e: MouseEvent): void => {
+      if (dockRef.current && !dockRef.current.contains(e.target as Node)) {
+        setShowAppearance(false)
+        setShowFlowShapes(false)
+      }
+    }
+    window.addEventListener('mousedown', onDocDown)
+    return () => window.removeEventListener('mousedown', onDocDown)
+  }, [])
 
   return (
     <>
@@ -182,7 +195,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* Bottom macOS-style Floating Dock */}
-      <nav className="bottom-dock no-drag" aria-label="PinSync Toolbar">
+      <nav ref={dockRef} className="bottom-dock no-drag" aria-label="PinSync Toolbar">
         <button className="dock-item" onClick={() => onAddMedia('image')} title="Add Image(s)">
           <span className="dock-icon">
             <ImageIcon size={16} />

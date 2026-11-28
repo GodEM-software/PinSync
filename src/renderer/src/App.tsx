@@ -77,7 +77,7 @@ export function App(): React.JSX.Element {
   const [smartGuides, setSmartGuides] = useState(true)
   const [zenMode, setZenMode] = useState(false)
   const [windowOpacity, setWindowOpacity] = useState(1)
-  const [theme, setTheme] = useState<BoardTheme>('charcoal')
+  const [theme, setTheme] = useState<BoardTheme>('light')
   const [isMaximized, setIsMaximized] = useState(false)
   const [boardFilePath, setBoardFilePath] = useState<string | undefined>(undefined)
   const [boardName, setBoardName] = useState('Untitled Board')
@@ -102,6 +102,13 @@ export function App(): React.JSX.Element {
   const [formatPanelDismissedId, setFormatPanelDismissedId] = useState<string | null>(null)
   const [cursorWorld, setCursorWorld] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [toast, setToast] = useState<string | null>(null)
+  const lastCursorUpdateRef = useRef(0)
+  const handleCursorWorldMove = useCallback((pt: { x: number; y: number }) => {
+    const now = performance.now()
+    if (now - lastCursorUpdateRef.current < 90) return
+    lastCursorUpdateRef.current = now
+    setCursorWorld({ x: Math.round(pt.x), y: Math.round(pt.y) })
+  }, [])
 
   const clipboardItemsRef = useRef<BoardItem[]>([])
   const toastTimerRef = useRef<number | null>(null)
@@ -1301,7 +1308,7 @@ export function App(): React.JSX.Element {
         onCancelDrawTool={() => setDrawToolActive(false)}
         onDirectCanvasType={handleDirectCanvasType}
         onTriggerArrowFromText={handleTriggerArrowFromText}
-        onCursorWorldMove={setCursorWorld}
+        onCursorWorldMove={handleCursorWorldMove}
         onViewportChange={setViewport}
         onSelectionChange={(ids) => {
           setSelectedIds(ids)
