@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { Box, Layers, Maximize2, RotateCcw, X } from 'lucide-react'
 import type { BoardItem, BoardTheme } from '../types/board'
+import { centerAndScaleObject, loadModelObject } from '../items/Model3DItem'
 
 interface Workspace3DViewProps {
   items: BoardItem[]
@@ -172,34 +173,31 @@ export const Workspace3DView: React.FC<Workspace3DViewProps> = ({
       group.userData.itemId = item.id
 
       if (item.type === 'model3d') {
-        const geo = new THREE.BoxGeometry(pw * 0.72, ph * 0.72, Math.min(pw, ph) * 0.72)
-        const mat = new THREE.MeshStandardMaterial({
-          color: 0x3b82f6,
-          roughness: 0.35,
-          metalness: 0.45,
-          transparent: true,
-          opacity: 0.88
-        })
-        createdGeos.push(geo)
-        createdMats.push(mat)
-        const cube = new THREE.Mesh(geo, mat)
-        cube.userData.itemId = item.id
-        group.add(cube)
-        pickables.push(cube)
-
-        const labelTex = makeCardTexture(item)
-        createdTextures.push(labelTex)
-        const badgeGeo = new THREE.PlaneGeometry(pw, ph * 0.32)
-        const badgeMat = new THREE.MeshBasicMaterial({
-          map: labelTex,
-          transparent: true,
-          side: THREE.DoubleSide
-        })
-        createdGeos.push(badgeGeo)
-        createdMats.push(badgeMat)
-        const badge = new THREE.Mesh(badgeGeo, badgeMat)
-        badge.position.y = -ph * 0.55
-        group.add(badge)
+        const modelGroup = new THREE.Group()
+        group.add(modelGroup)
+        void loadModelObject(item.src, item.format, renderer, item.filePath)
+          .then((obj) => {
+            centerAndScaleObject(obj)
+            const s = Math.max(0.7, Math.min(pw, ph) * 0.45)
+            obj.scale.multiplyScalar(s)
+            obj.traverse((c) => {
+              if ((c as THREE.Mesh).isMesh) {
+                c.userData.itemId = item.id
+                pickables.push(c)
+              }
+            })
+            modelGroup.add(obj)
+          })
+          .catch(() => {
+            const geo = new THREE.BoxGeometry(pw * 0.65, ph * 0.65, Math.min(pw, ph) * 0.65)
+            const mat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.4 })
+            createdGeos.push(geo)
+            createdMats.push(mat)
+            const cube = new THREE.Mesh(geo, mat)
+            cube.userData.itemId = item.id
+            modelGroup.add(cube)
+            pickables.push(cube)
+          })
       } else {
         const geo = new THREE.PlaneGeometry(pw, ph)
         createdGeos.push(geo)

@@ -180,7 +180,7 @@ export const Model3DEditorModal: React.FC<Model3DEditorModalProps> = ({
           }
         })
     } else {
-      rootGroup.add(buildPrimitive(primitive))
+      rootGroup.add(buildPrimitive('box'))
     }
 
     const raycaster = new THREE.Raycaster()
@@ -271,7 +271,22 @@ export const Model3DEditorModal: React.FC<Model3DEditorModalProps> = ({
         container.removeChild(renderer.domElement)
       }
     }
-  }, [item, primitive])
+  }, [item])
+
+  const handleChangePrimitive = (nextKind: PrimitiveKind): void => {
+    setPrimitive(nextKind)
+    if (!rootGroupRef.current || item) return
+    rootGroupRef.current.clear()
+    selectedMeshRef.current = null
+    setSelectedMeshName('None (click model)')
+    rootGroupRef.current.add(buildPrimitive(nextKind))
+  }
+
+  const handleClearTextStamps = (): void => {
+    if (!rootGroupRef.current) return
+    const toRemove = rootGroupRef.current.children.filter((c) => c.name.startsWith('TextPrint_'))
+    toRemove.forEach((c) => rootGroupRef.current?.remove(c))
+  }
 
   const applyColorToSelected = (hex: string, rough: number, metal: number): void => {
     const target = selectedMeshRef.current
@@ -389,7 +404,7 @@ export const Model3DEditorModal: React.FC<Model3DEditorModalProps> = ({
                     <button
                       key={p}
                       className={`fp-pill ${primitive === p ? 'active' : ''}`}
-                      onClick={() => setPrimitive(p)}
+                      onClick={() => handleChangePrimitive(p)}
                     >
                       {p}
                     </button>
@@ -521,6 +536,13 @@ export const Model3DEditorModal: React.FC<Model3DEditorModalProps> = ({
                 onClick={() => setToolMode('stamp')}
               >
                 <Stamp size={12} /> Click Model to Print Text
+              </button>
+              <button
+                className="btn-secondary small"
+                style={{ width: '100%', marginTop: 4 }}
+                onClick={handleClearTextStamps}
+              >
+                Clear Printed Text
               </button>
             </div>
 

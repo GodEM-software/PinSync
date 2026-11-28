@@ -71,15 +71,15 @@ body,
 
 .bottom-dock {
   position: fixed;
-  bottom: 36px;
+  bottom: 34px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border-radius: 18px;
-  background: rgba(22, 25, 34, 0.8);
+  gap: 2px;
+  padding: 5px 10px;
+  border-radius: 16px;
+  background: rgba(20, 23, 32, 0.86);
   border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(24px) saturate(180%);
   box-shadow:
@@ -87,6 +87,12 @@ body,
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   z-index: 80;
   max-width: calc(100vw - 24px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bottom-dock::-webkit-scrollbar {
+  display: none;
 }
 
 .dock-item {
@@ -96,14 +102,15 @@ body,
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-width: 42px;
-  height: 44px;
-  padding: 4px 7px;
-  border-radius: 12px;
+  min-width: 36px;
+  height: 40px;
+  padding: 3px 6px;
+  border-radius: 10px;
   border: 1px solid transparent;
   background: transparent;
   color: #cbd5e1;
   cursor: pointer;
+  flex-shrink: 0;
   transition:
     transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
     background 140ms,
@@ -382,6 +389,24 @@ body,
   padding: 8px 12px;
   background: #171a23;
   border-bottom: 1px solid #2b3142;
+}
+
+.react-flow__controls {
+  background: #171a23 !important;
+  border: 1px solid #2b3142 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: #171a23 !important;
+  border-bottom: 1px solid #2b3142 !important;
+  fill: #cbd5e1 !important;
+  color: #cbd5e1 !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #232838 !important;
 }
 
 /* Three.js 3D Editor */
